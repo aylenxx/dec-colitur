@@ -1,0 +1,2358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Panel Admin – DEC COLITUR</title>
+<link rel="icon" type="image/png" href="ICON.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Cinzel:wght@500;700&family=Montserrat:wght@300;400;600;700&family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#B51E23;--red-dark:#8f1519;--red-light:#d4464b;
+  --dorado:#c5a059;
+  --navy:#1A1A2E;--navy-mid:#252540;
+  --cream:#F7F5F2;--warm-grey:#EDEBE7;--mid-grey:#D8D6D2;
+  --text:#2C2C3A;--muted:#6B6B80;--white:#fff;
+  --green:#16a34a;--green-bg:#dcfce7;
+  --amber:#b45309;--amber-bg:#fef3c7;
+  --blue:#1d4ed8;--blue-bg:#dbeafe;
+  --font-disp:'Cormorant Garamond',Georgia,serif;
+  --font-body:'DM Sans',system-ui,sans-serif;
+  --radius:10px;--shadow:0 4px 20px rgba(0,0,0,.07);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.15);--trans:.25s ease;
+  --sidebar:240px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);color:var(--text);background:#ECEAE6;line-height:1.6;overflow-x:hidden}
+img{max-width:100%;display:block}a{text-decoration:none;color:inherit}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--red);border-radius:3px}
+::selection{background:var(--red);color:var(--white)}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);position:fixed;top:0;left:0;bottom:0;background:var(--navy);display:flex;flex-direction:column;z-index:300;transition:transform var(--trans)}
+.sb-logo{padding:1.25rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:.65rem}
+.sb-logo-txt{font-family:var(--font-disp);font-size:.95rem;font-weight:600;color:var(--white)}
+.sb-logo-txt small{display:block;font-size:.6rem;font-family:var(--font-body);color:rgba(255,255,255,.35);letter-spacing:.1em;text-transform:uppercase}
+.sb-user{display:flex;align-items:center;gap:.7rem;padding:1rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--red),var(--red-dark));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;color:var(--white);flex-shrink:0}
+.sb-ui strong{display:block;font-size:.8rem;color:var(--white);font-weight:600}
+.sb-ui span{font-size:.65rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em}
+.sb-nav{flex:1;padding:.65rem 0;overflow-y:auto}
+.sb-lbl{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.25);padding:.65rem 1.5rem .3rem}
+.sb-a{display:flex;align-items:center;gap:.7rem;padding:.6rem 1.5rem;color:rgba(255,255,255,.55);font-size:.83rem;font-weight:400;border-left:3px solid transparent;cursor:pointer;transition:all var(--trans)}
+.sb-a svg{width:16px;height:16px;flex-shrink:0}
+.sb-a:hover{color:var(--white);background:rgba(255,255,255,.05)}
+.sb-a.active{color:var(--white);background:rgba(181,30,35,.2);border-left-color:var(--red);font-weight:600}
+.sb-a.logout{color:rgba(255,120,120,.65)}
+.sb-a.logout:hover{color:#ff8080;background:rgba(255,0,0,.06)}
+.sb-footer{padding:.9rem 1.5rem;border-top:1px solid rgba(255,255,255,.07)}
+
+/* ── MOBILE HAMBURGER ── */
+.hb{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:.3rem;flex-shrink:0}
+.hb span{display:block;width:20px;height:2px;background:var(--navy);border-radius:2px}
+.pg-head{display:flex;align-items:center;gap:.5rem;margin-bottom:1.4rem}
+.pg-head > div{flex:1}
+.pg-head .hb{flex-shrink:0}
+.pg-head h2{font-family:var(--font-disp);font-size:1.65rem;font-weight:600;color:var(--navy)}
+.pg-head p{font-size:.85rem;color:var(--muted);margin-top:.2rem}
+.pg-head-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4rem;gap:.5rem;flex-wrap:wrap}
+.pg-head-row .hb{flex-shrink:0}
+.pg-head-row h2{font-family:var(--font-disp);font-size:1.65rem;font-weight:600;color:var(--navy)}
+.pg-head-row p{font-size:.85rem;color:var(--muted);margin-top:.2rem}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:250}
+.sb-overlay.open{display:block}
+@media(max-width:860px){.sb-close{display:block !important}.hb{display:flex}}
+
+/* ── LAYOUT ── */
+.shell{display:flex;min-height:100vh}
+.main{margin-left:var(--sidebar);padding-top:0;flex:1}
+.pg{display:none;padding:1.2rem 1.6rem 1.6rem}
+.pg.active{display:block}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.sc{background:var(--white);border-radius:var(--radius);padding:1.25rem;box-shadow:var(--shadow);border:1px solid var(--warm-grey);position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc.red::after{background:linear-gradient(90deg,var(--red),var(--red-light))}
+.sc.green::after{background:linear-gradient(90deg,var(--green),#4ade80)}
+.sc.amber::after{background:linear-gradient(90deg,var(--amber),#f59e0b)}
+.sc.blue::after{background:linear-gradient(90deg,var(--blue),#60a5fa)}
+.sc-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:.75rem}
+.sc-ico svg{width:18px;height:18px}
+.sc-ico.red{background:rgba(181,30,35,.1);color:var(--red)}
+.sc-ico.green{background:var(--green-bg);color:var(--green)}
+.sc-ico.amber{background:var(--amber-bg);color:var(--amber)}
+.sc-ico.blue{background:var(--blue-bg);color:var(--blue)}
+.sc-val{font-family:var(--font-disp);font-size:2rem;font-weight:700;color:var(--navy);line-height:1}
+.sc-label{font-size:.76rem;color:var(--muted);margin-top:.2rem}
+.sc-trend{font-size:.72rem;font-weight:500;margin-top:.2rem}
+.sc-trend.up{color:var(--green)}.sc-trend.down{color:var(--red)}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:var(--radius);padding:1.35rem;border:1px solid var(--warm-grey);box-shadow:var(--shadow)}
+.card-title{font-family:var(--font-disp);font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:1rem}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.card-head h3{font-family:var(--font-disp);font-size:1.1rem;font-weight:600;color:var(--navy)}
+
+/* ── GRID ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:1.25rem}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:.65rem .85rem;background:var(--cream);border-bottom:1px solid var(--warm-grey);white-space:nowrap}
+tbody td{padding:.7rem .85rem;font-size:.83rem;border-bottom:1px solid var(--warm-grey);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(0,0,0,.015)}
+.td-avatar{width:30px;height:30px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--white)}
+.td-name{font-weight:500;color:var(--navy)}
+.td-email{font-size:.78rem;color:var(--muted)}
+.td-actions{display:flex;gap:.4rem;flex-wrap:wrap}
+.tbl-btn{font-size:.72rem;padding:.28rem .65rem;border-radius:6px;border:none;cursor:pointer;font-family:var(--font-body);font-weight:500;transition:background var(--trans),color var(--trans)}
+.tbl-btn.view{background:var(--blue-bg);color:var(--blue)}
+.tbl-btn.view:hover{background:var(--blue);color:var(--white)}
+.tbl-btn.edit{background:var(--amber-bg);color:var(--amber)}
+.tbl-btn.edit:hover{background:var(--amber);color:var(--white)}
+.tbl-btn.del{background:rgba(181,30,35,.08);color:var(--red)}
+.tbl-btn.del:hover{background:var(--red);color:var(--white)}
+.tbl-btn.approve{background:var(--green-bg);color:var(--green)}
+.tbl-btn.approve:hover{background:var(--green);color:var(--white)}
+.tbl-btn.pub{background:var(--green-bg);color:var(--green)}
+.tbl-btn.pub:hover{background:var(--green);color:var(--white)}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:600;padding:.22rem .6rem;border-radius:50px}
+.badge.green{background:var(--green-bg);color:var(--green)}
+.badge.red{background:rgba(181,30,35,.1);color:var(--red)}
+.badge.amber{background:var(--amber-bg);color:var(--amber)}
+.badge.blue{background:var(--blue-bg);color:var(--blue)}
+.badge.grey{background:var(--warm-grey);color:var(--muted)}
+
+/* ── PROGRESS MINI ── */
+.mini-prog{display:flex;flex-direction:column;gap:.2rem}
+.mini-prog-bar{height:5px;background:var(--warm-grey);border-radius:50px;overflow:hidden;width:90px}
+.mini-prog-fill{height:100%;border-radius:50px}
+.mini-prog-fill.red{background:var(--red)}
+.mini-prog-fill.green{background:var(--green)}
+.mini-prog-fill.amber{background:var(--amber)}
+.mini-prog span{font-size:.7rem;color:var(--muted)}
+
+/* ── CHARTS MOCK ── */
+.chart-mock{height:180px;display:flex;align-items:flex-end;gap:.4rem;padding:0 .5rem}
+.bar{border-radius:5px 5px 0 0;transition:opacity var(--trans);cursor:pointer;position:relative}
+.bar:hover{opacity:.8}
+.bar::after{content:attr(data-val);position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:.65rem;font-weight:600;color:var(--navy);white-space:nowrap;opacity:0;transition:opacity var(--trans)}
+.bar:hover::after{opacity:1}
+.chart-labels{display:flex;gap:.4rem;padding:0 .5rem;margin-top:.4rem}
+.chart-label{flex:1;text-align:center;font-size:.65rem;color:var(--muted)}
+.donut-wrap{display:flex;align-items:center;gap:1.5rem;padding:.5rem 0}
+.donut-svg{flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:.55rem}
+.dl-item{display:flex;align-items:center;gap:.55rem;font-size:.8rem}
+.dl-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+/* ── COURSE ADMIN CARDS ── */
+.course-admin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
+.cac{background:var(--white);border-radius:var(--radius);overflow:hidden;border:1px solid var(--warm-grey);box-shadow:var(--shadow);transition:transform var(--trans),box-shadow var(--trans)}
+.cac:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.1)}
+.cac-img{height:130px;background-size:cover;background-position:center;position:relative}
+.cac-img-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.55))}
+.cac-status{position:absolute;top:.6rem;right:.6rem}
+.cac-drafted{position:absolute;top:.6rem;left:.6rem}
+.cac-body{padding:.9rem 1rem 1rem}
+.cac-title{font-family:var(--font-disp);font-size:.98rem;font-weight:600;color:var(--navy);line-height:1.35;margin-bottom:.5rem}
+.cac-meta{font-size:.73rem;color:var(--muted);display:flex;flex-direction:column;gap:.2rem;margin-bottom:.8rem}
+.cac-meta span{display:flex;align-items:center;gap:.3rem}
+.cac-prog{margin-bottom:.8rem}
+.cac-prog-label{display:flex;justify-content:space-between;font-size:.72rem;margin-bottom:.3rem}
+.cac-prog-bar{height:5px;background:var(--warm-grey);border-radius:50px;overflow:hidden}
+.cac-prog-fill{height:100%;background:var(--red);border-radius:50px;transition:width .6s ease}
+.cac-actions{display:flex;gap:.4rem;flex-wrap:wrap}
+
+/* ── FORM ── */
+.form-section{max-width:700px}
+.fg{display:flex;flex-direction:column;gap:.32rem;margin-bottom:.9rem}
+.fg label{font-size:.78rem;font-weight:600;color:var(--navy);letter-spacing:.03em}
+.fg input,.fg select,.fg textarea{padding:.65rem .9rem;border:1.5px solid var(--warm-grey);border-radius:9px;font-family:var(--font-body);font-size:.87rem;color:var(--text);background:var(--cream);outline:none;transition:border-color var(--trans),box-shadow var(--trans);width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(181,30,35,.1);background:var(--white)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.85rem}
+
+/* ── ACTIVITY ── */
+.act-item{display:flex;align-items:flex-start;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--warm-grey)}
+.act-item:last-child{border-bottom:none}
+.act-ico{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.act-ico svg{width:14px;height:14px}
+.act-ico.red{background:rgba(181,30,35,.1);color:var(--red)}
+.act-ico.green{background:var(--green-bg);color:var(--green)}
+.act-ico.navy{background:rgba(26,26,46,.1);color:var(--navy)}
+.act-ico.amber{background:var(--amber-bg);color:var(--amber)}
+.act-ico.blue{background:var(--blue-bg);color:var(--blue)}
+.act-body strong{display:block;font-size:.82rem;font-weight:600;color:var(--text)}
+.act-body span{font-size:.74rem;color:var(--muted)}
+.act-t{font-size:.68rem;color:var(--muted);white-space:nowrap;margin-left:auto;padding-left:.5rem}
+
+/* ── BUTTONS ── */
+.btn-red{display:inline-flex;align-items:center;gap:.4rem;background:var(--red);color:var(--white);border:none;border-radius:50px;padding:.55rem 1.2rem;font-family:var(--font-body);font-size:.82rem;font-weight:600;cursor:pointer;transition:background var(--trans),transform var(--trans)}
+.btn-red:hover{background:var(--red-dark);transform:translateY(-1px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:.4rem;background:transparent;color:var(--muted);border:1.5px solid var(--mid-grey);border-radius:50px;padding:.52rem 1.1rem;font-family:var(--font-body);font-size:.82rem;font-weight:500;cursor:pointer;transition:border-color var(--trans),color var(--trans)}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+.btn-green{display:inline-flex;align-items:center;gap:.4rem;background:var(--green);color:var(--white);border:none;border-radius:50px;padding:.52rem 1.1rem;font-family:var(--font-body);font-size:.82rem;font-weight:600;cursor:pointer;transition:background var(--trans)}
+.btn-green:hover{background:#15803d}
+.btn-navy{display:inline-flex;align-items:center;gap:.4rem;background:var(--navy);color:var(--white);border:none;border-radius:50px;padding:.52rem 1.1rem;font-family:var(--font-body);font-size:.82rem;font-weight:600;cursor:pointer;transition:background var(--trans)}
+.btn-navy:hover{background:var(--navy-mid)}
+
+/* ── ASSIGNMENT ── */
+.assignment-item{background:var(--white);border-radius:var(--radius);border:1px solid var(--warm-grey);overflow:hidden;margin-bottom:.85rem}
+.ai-head{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;border-bottom:1px solid var(--warm-grey);background:var(--cream)}
+.ai-head-left{display:flex;align-items:center;gap:.75rem}
+.ai-avatar{width:32px;height:32px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:var(--white)}
+.ai-name{font-size:.85rem;font-weight:600;color:var(--navy)}
+.ai-course{font-size:.73rem;color:var(--muted)}
+.ai-body{padding:1rem}
+.ai-task{font-size:.82rem;color:var(--text);margin-bottom:.65rem}
+.grade-input{display:flex;align-items:center;gap:.65rem;margin-top:.65rem}
+.grade-input input{width:70px;padding:.45rem .65rem;border:1.5px solid var(--warm-grey);border-radius:8px;font-size:.85rem;font-weight:600;text-align:center;font-family:var(--font-body);outline:none;color:var(--navy)}
+.grade-input input:focus{border-color:var(--red)}
+.grade-input textarea{flex:1;padding:.45rem .65rem;border:1.5px solid var(--warm-grey);border-radius:8px;font-size:.82rem;font-family:var(--font-body);outline:none;resize:none;color:var(--text)}
+.grade-input textarea:focus{border-color:var(--red)}
+
+/* ── SEARCH BAR ── */
+.search-bar{padding:.52rem .9rem;border:1.5px solid var(--warm-grey);border-radius:9px;font-family:var(--font-body);font-size:.83rem;outline:none;background:var(--white);transition:border-color var(--trans)}
+.search-bar:focus{border-color:var(--red)}
+
+/* ════════════════════════════════
+   MODALES GENERALES
+════════════════════════════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,10,20,.55);backdrop-filter:blur(4px);z-index:900;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .3s ease}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal-box{background:var(--white);border-radius:16px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:var(--shadow-lg);transform:translateY(12px);transition:transform .3s ease}
+.modal-overlay.open .modal-box{transform:translateY(0)}
+.modal-close{position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;border:none;background:var(--warm-grey);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);z-index:10;transition:background var(--trans)}
+.modal-close:hover{background:var(--mid-grey)}
+.modal-close svg{width:14px;height:14px}
+
+/* ── MODAL CURSO DETALLE (igual index.html) ── */
+.modal-box--wide{max-width:860px}
+.cm-hero{height:200px;background-size:cover;background-position:center;border-radius:16px 16px 0 0;position:relative}
+.cm-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.6));border-radius:16px 16px 0 0}
+.cm-body{display:grid;grid-template-columns:1fr 280px;gap:1.5rem;padding:1.5rem}
+.cm-content{}
+.course-cat{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:.4rem}
+.cm-title{font-family:var(--font-disp);font-size:1.55rem;font-weight:700;color:var(--navy);margin-bottom:1rem;line-height:1.25}
+.cm-tabs{display:flex;border-bottom:2px solid var(--warm-grey);margin-bottom:1rem;gap:0}
+.cm-tab{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:var(--font-body);font-size:.85rem;font-weight:500;color:var(--muted);padding:.65rem 1rem;cursor:pointer;transition:color var(--trans),border-color var(--trans)}
+.cm-tab.active{color:var(--red);border-bottom-color:var(--red);font-weight:600}
+.cm-panel{display:none}
+.cm-panel.active{display:block}
+.cm-panel p{font-size:.88rem;color:var(--muted);line-height:1.7;margin-bottom:.75rem}
+.cm-subtitle{font-family:var(--font-disp);font-size:1rem;font-weight:600;color:var(--navy);margin:.9rem 0 .5rem}
+.cm-learn-list{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+.cm-learn-list li{font-size:.85rem;color:var(--text);padding-left:1.2rem;position:relative;line-height:1.5}
+.cm-learn-list li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:700}
+.cm-extra{font-size:.83rem;color:var(--muted);line-height:1.65;margin-top:.75rem;font-style:italic}
+.cm-modules{display:flex;flex-direction:column;gap:.4rem}
+.cm-module{display:flex;justify-content:space-between;align-items:center;padding:.6rem .85rem;background:var(--cream);border-radius:8px;font-size:.83rem}
+.cm-module span:first-child{color:var(--text);font-weight:500}
+.cm-module span:last-child{color:var(--muted);font-size:.75rem}
+.cm-sidebar{}
+.cm-info-card{background:var(--cream);border-radius:12px;padding:1.25rem;border:1px solid var(--warm-grey)}
+.cm-price{font-family:var(--font-disp);font-size:2rem;font-weight:700;color:var(--navy);margin-bottom:.85rem}
+.cm-details{list-style:none;display:flex;flex-direction:column;gap:.55rem;margin-bottom:1rem}
+.cm-details li{display:flex;align-items:flex-start;gap:.55rem;font-size:.82rem}
+.cm-details svg{width:14px;height:14px;color:var(--red);flex-shrink:0;margin-top:.15rem}
+.cm-details strong{color:var(--navy);margin-right:.25rem}
+.cm-details span{color:var(--muted)}
+.cm-buy-btn{width:100%;justify-content:center;border-radius:9px;padding:.7rem;font-size:.88rem}
+
+/* ADMIN badge en sidebar del modal */
+.cm-admin-actions{display:flex;gap:.5rem;margin-top:.75rem}
+.cm-admin-actions button{flex:1;justify-content:center;border-radius:9px;padding:.6rem;font-size:.82rem}
+
+/* ── MODAL CRUD CURSO ── */
+.modal-box--crud{max-width:760px}
+.modal-header{padding:1.35rem 1.5rem 0;border-bottom:1px solid var(--warm-grey);padding-bottom:1rem;margin-bottom:0}
+.modal-header h2{font-family:var(--font-disp);font-size:1.35rem;font-weight:700;color:var(--navy)}
+.modal-header p{font-size:.82rem;color:var(--muted);margin-top:.2rem}
+.modal-body{padding:1.35rem 1.5rem}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--warm-grey);display:flex;justify-content:flex-end;gap:.65rem;background:var(--cream);border-radius:0 0 16px 16px}
+
+/* ── MODULES EDITOR ── */
+.modules-editor{display:flex;flex-direction:column;gap:.5rem;margin-bottom:.5rem}
+.mod-row{display:flex;align-items:center;gap:.5rem;background:var(--cream);border-radius:8px;padding:.5rem .75rem;border:1px solid var(--warm-grey)}
+.mod-row input{flex:1;border:none;background:transparent;font-family:var(--font-body);font-size:.85rem;color:var(--text);outline:none;padding:.1rem 0}
+.mod-row input.mod-sessions{width:110px;flex:none;color:var(--muted);font-size:.78rem}
+.mod-row .mod-del-btn{background:none;border:none;cursor:pointer;color:var(--red);padding:.1rem .3rem;font-size:.9rem;transition:opacity var(--trans);flex-shrink:0}
+.mod-row .mod-del-btn:hover{opacity:.7}
+.mod-drag{cursor:grab;color:var(--muted);font-size:1rem;flex-shrink:0;padding:.1rem}
+.add-mod-btn{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:500;color:var(--red);background:none;border:1.5px dashed var(--red);border-radius:8px;padding:.4rem .85rem;cursor:pointer;transition:background var(--trans)}
+.add-mod-btn:hover{background:rgba(181,30,35,.05)}
+
+/* IMAGE UPLOAD AREA */
+.img-upload-area{border:2px dashed var(--mid-grey);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color var(--trans),background var(--trans);background:var(--cream);position:relative;overflow:hidden}
+.img-upload-area:hover{border-color:var(--red);background:rgba(181,30,35,.03)}
+.img-upload-area.has-img{border-style:solid;border-color:var(--green)}
+.img-upload-area img.preview{width:100%;height:110px;object-fit:cover;border-radius:7px;display:none}
+.img-upload-area.has-img img.preview{display:block}
+.img-upload-area .upload-placeholder{display:flex;flex-direction:column;align-items:center;gap:.4rem}
+.img-upload-area.has-img .upload-placeholder{display:none}
+.img-upload-area svg{width:28px;height:28px;color:var(--muted)}
+.img-upload-area p{font-size:.8rem;color:var(--muted)}
+.img-upload-area strong{color:var(--red)}
+
+/* TABS dentro del modal crud */
+.crud-tabs{display:flex;border-bottom:1px solid var(--warm-grey);margin-bottom:1.25rem;gap:0}
+.crud-tab{background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:var(--font-body);font-size:.82rem;font-weight:500;color:var(--muted);padding:.6rem .9rem;cursor:pointer;transition:color var(--trans),border-color var(--trans)}
+.crud-tab.active{color:var(--red);border-bottom-color:var(--red);font-weight:600}
+.crud-panel{display:none}
+.crud-panel.active{display:block}
+
+/* LEARN LIST EDITOR */
+.learn-list-editor{display:flex;flex-direction:column;gap:.45rem;margin-bottom:.5rem}
+.learn-row{display:flex;align-items:center;gap:.5rem}
+.learn-row input{flex:1;padding:.55rem .8rem;border:1.5px solid var(--warm-grey);border-radius:8px;font-family:var(--font-body);font-size:.84rem;color:var(--text);background:var(--cream);outline:none;transition:border-color var(--trans)}
+.learn-row input:focus{border-color:var(--red)}
+.learn-row .mod-del-btn{background:none;border:none;cursor:pointer;color:var(--red);font-size:.9rem;flex-shrink:0}
+
+/* CONFIRM DELETE MODAL */
+.confirm-modal .modal-box{max-width:420px;padding:2rem;text-align:center}
+.confirm-icon{width:56px;height:56px;border-radius:50%;background:rgba(181,30,35,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem}
+.confirm-icon svg{width:26px;height:26px;color:var(--red)}
+.confirm-modal h3{font-family:var(--font-disp);font-size:1.2rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.confirm-modal p{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1.25rem}
+.confirm-btns{display:flex;gap:.65rem;justify-content:center}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:var(--white);padding:.75rem 1.25rem;border-radius:10px;font-size:.83rem;font-weight:500;box-shadow:0 6px 24px rgba(0,0,0,.18);transform:translateY(20px);opacity:0;transition:all .3s ease;z-index:9999;display:flex;align-items:center;gap:.5rem;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.toast-green{background:var(--green)}
+.toast.toast-red{background:var(--red)}
+.toast svg{width:15px;height:15px;flex-shrink:0}
+
+/* ══════════════════════════════════════════
+   MODAL PREGUNTAS — Estilos
+══════════════════════════════════════════ */
+.pm-pregunta{background:var(--cream);border:1px solid var(--warm-grey);border-radius:10px;padding:1rem;margin-bottom:.85rem;position:relative}
+.pm-pregunta-head{display:flex;align-items:flex-start;gap:.65rem;margin-bottom:.65rem}
+.pm-q-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;margin-top:.15rem}
+.pm-q-text{flex:1;padding:.5rem .75rem;border:1.5px solid var(--warm-grey);border-radius:8px;font-family:var(--font-body);font-size:.85rem;color:var(--text);background:var(--white);resize:vertical;min-height:44px;outline:none;line-height:1.5}
+.pm-q-text:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(181,30,35,.08)}
+.pm-q-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:.3rem;border-radius:6px;transition:all var(--trans);flex-shrink:0}
+.pm-q-del:hover{color:var(--red);background:rgba(181,30,35,.08)}
+.pm-opciones{display:flex;flex-direction:column;gap:.4rem;padding-left:2.2rem}
+.pm-opcion{display:flex;align-items:center;gap:.5rem;background:var(--white);border:1.5px solid var(--warm-grey);border-radius:8px;padding:.45rem .7rem;transition:border-color var(--trans)}
+.pm-opcion.correcta{border-color:var(--green);background:var(--green-bg)}
+.pm-opcion input[type="radio"]{accent-color:var(--green);cursor:pointer;flex-shrink:0}
+.pm-opcion input[type="text"]{flex:1;border:none;background:transparent;font-family:var(--font-body);font-size:.83rem;color:var(--text);outline:none;padding:.15rem 0}
+.pm-opcion input[type="text"]:focus{color:var(--navy)}
+.pm-opcion .pm-op-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.7rem;padding:.15rem .3rem;border-radius:4px;transition:all var(--trans);flex-shrink:0}
+.pm-opcion .pm-op-del:hover{color:var(--red);background:rgba(181,30,35,.08)}
+.pm-add-op{background:none;border:1px dashed var(--mid-grey);border-radius:6px;padding:.3rem .65rem;font-size:.75rem;color:var(--muted);cursor:pointer;margin-top:.35rem;margin-left:2.2rem;transition:border-color var(--trans),color var(--trans)}
+.pm-add-op:hover{border-color:var(--navy);color:var(--navy)}
+.pm-correcta-tag{font-size:.65rem;font-weight:700;color:var(--green);letter-spacing:.03em;white-space:nowrap;text-transform:uppercase}
+
+/* ══════════════════════════════════════════
+   GESTIÓN DE CLASES — Estilos
+══════════════════════════════════════════ */
+.clases-layout{display:grid;grid-template-columns:280px 1fr;gap:1.25rem;align-items:start}
+.curso-selector-list{background:var(--white);border-radius:var(--radius);border:1px solid var(--warm-grey);box-shadow:var(--shadow);overflow:hidden}
+.csl-head{padding:.85rem 1rem;background:var(--cream);border-bottom:1px solid var(--warm-grey);font-family:var(--font-disp);font-size:.98rem;font-weight:600;color:var(--navy)}
+.csl-item{display:flex;align-items:center;gap:.65rem;padding:.72rem 1rem;border-bottom:1px solid var(--warm-grey);cursor:pointer;transition:background var(--trans)}
+.csl-item:last-child{border-bottom:none}
+.csl-item:hover{background:rgba(181,30,35,.04)}
+.csl-item.active{background:rgba(181,30,35,.08);border-left:3px solid var(--red)}
+.csl-item.active .csl-name{color:var(--red);font-weight:600}
+.csl-thumb{width:38px;height:38px;border-radius:7px;background-size:cover;background-position:center;flex-shrink:0}
+.csl-name{font-size:.83rem;font-weight:500;color:var(--navy);line-height:1.3}
+.csl-cnt{font-size:.7rem;color:var(--muted)}
+.clase-panel{background:var(--white);border-radius:var(--radius);border:1px solid var(--warm-grey);box-shadow:var(--shadow)}
+.clase-panel-head{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--warm-grey)}
+.clase-panel-head h3{font-family:var(--font-disp);font-size:1.1rem;font-weight:600;color:var(--navy)}
+.modulo-section{padding:.85rem 1.25rem;border-bottom:1px solid var(--warm-grey)}
+.modulo-section:last-child{border-bottom:none}
+.modulo-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem}
+.modulo-titulo{display:flex;align-items:center;gap:.5rem;font-size:.85rem;font-weight:700;color:var(--navy)}
+.modulo-ico{width:22px;height:22px;border-radius:5px;background:rgba(181,30,35,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modulo-ico svg{width:12px;height:12px;color:var(--red)}
+.clase-item{display:flex;align-items:center;gap:.75rem;padding:.55rem .75rem;border-radius:8px;border:1px solid var(--warm-grey);margin-bottom:.4rem;background:var(--cream);transition:box-shadow var(--trans)}
+.clase-item:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.clase-orden{width:24px;height:24px;border-radius:50%;background:var(--navy);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0}
+.clase-info{flex:1;min-width:0}
+.clase-titulo{font-size:.83rem;font-weight:500;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clase-meta{font-size:.7rem;color:var(--muted);display:flex;align-items:center;gap:.4rem;margin-top:.1rem}
+.clase-tipo{display:inline-flex;align-items:center;gap:.25rem;font-size:.65rem;font-weight:600;padding:.15rem .45rem;border-radius:4px}
+.clase-tipo.video{background:#fff0f0;color:#cc0000}
+.clase-tipo.quiz{background:#fef3c7;color:#b45309}
+.clase-tipo.trabajo{background:#dcfce7;color:#16a34a}
+.clase-acciones{display:flex;gap:.3rem}
+.video-preview-ico{width:32px;height:32px;border-radius:50%;background:rgba(204,0,0,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:background var(--trans)}
+.video-preview-ico:hover{background:rgba(204,0,0,.2)}
+.video-preview-ico svg{width:14px;height:14px;color:#cc0000}
+.empty-clases{text-align:center;padding:2.5rem;color:var(--muted);font-size:.88rem}
+.empty-clases svg{width:40px;height:40px;margin:0 auto .75rem;opacity:.25}
+/* Modal de clase */
+.vid-source-tabs{display:flex;gap:0;border:1.5px solid var(--warm-grey);border-radius:9px;overflow:hidden;margin-bottom:1rem}
+.vst{flex:1;background:none;border:none;padding:.55rem;font-family:var(--font-body);font-size:.82rem;font-weight:500;color:var(--muted);cursor:pointer;transition:background var(--trans),color var(--trans);display:flex;align-items:center;justify-content:center;gap:.4rem}
+.vst.active{background:var(--red);color:var(--white)}
+.vst:not(.active):hover{background:var(--cream)}
+.vid-panel{display:none}
+.vid-panel.active{display:block}
+.tipo-content-tabs{display:flex;gap:.4rem}
+.tct{flex:1;background:none;border:1.5px solid var(--warm-grey);border-radius:9px;padding:.5rem;font-family:var(--font-body);font-size:.78rem;font-weight:500;color:var(--muted);cursor:pointer;transition:background var(--trans),color var(--trans),border-color var(--trans);display:flex;align-items:center;justify-content:center;gap:.35rem;line-height:1.2}
+.tct.active{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.tct:not(.active):hover{background:var(--cream);border-color:var(--mid-grey)}
+.ct-panel{display:none;margin-top:.4rem}
+.ct-panel.active{display:block}
+
+/* Question builder */
+.pregunta-card{background:var(--cream);border:1px solid var(--warm-grey);border-radius:9px;padding:.85rem;margin-bottom:.75rem}
+.pregunta-card .q-header{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.5rem}
+.pregunta-card .q-header textarea{flex:1;min-height:50px;padding:.5rem;border:1.5px solid var(--warm-grey);border-radius:7px;font-family:var(--font-body);font-size:.82rem;color:var(--text);background:var(--white);resize:vertical;outline:none}
+.pregunta-card .q-header textarea:focus{border-color:var(--red)}
+.pregunta-card .q-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:.2rem;flex-shrink:0}
+.pregunta-card .q-del:hover{color:var(--red)}
+.opcion-row{display:flex;align-items:center;gap:.4rem;margin-top:.35rem}
+.opcion-row input[type="radio"]{flex-shrink:0;cursor:pointer;accent-color:var(--green)}
+.opcion-row input[type="text"]{flex:1;padding:.4rem .55rem;border:1.5px solid var(--warm-grey);border-radius:6px;font-size:.8rem;outline:none;background:var(--white)}
+.opcion-row input[type="text"]:focus{border-color:var(--navy)}
+.opcion-row .o-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;padding:.2rem .4rem}
+.opcion-row .o-del:hover{color:var(--red)}
+.opcion-row .correcta-label{font-size:.7rem;color:var(--green);font-weight:600;white-space:nowrap}
+.add-opcion-btn{background:none;border:1px dashed var(--mid-grey);border-radius:6px;padding:.3rem .6rem;font-size:.75rem;color:var(--muted);cursor:pointer;margin-top:.35rem;transition:border-color var(--trans),color var(--trans)}
+.add-opcion-btn:hover{border-color:var(--navy);color:var(--navy)}
+
+.upload-drop{border:2px dashed var(--mid-grey);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color var(--trans),background var(--trans);background:var(--cream)}
+.upload-drop:hover{border-color:var(--red);background:rgba(181,30,35,.03)}
+.upload-drop svg{width:30px;height:30px;color:var(--muted);margin:0 auto .5rem}
+.upload-drop p{font-size:.8rem;color:var(--muted);line-height:1.55}
+.upload-drop strong{color:var(--red)}
+.yt-preview-box{background:var(--cream);border-radius:9px;padding:.75rem;border:1px solid var(--warm-grey);display:none}
+.yt-preview-box.visible{display:flex;align-items:center;gap:.75rem}
+.yt-thumb{width:80px;height:45px;border-radius:6px;background:#000;object-fit:cover;flex-shrink:0}
+.yt-info{flex:1;min-width:0}
+.yt-info strong{display:block;font-size:.82rem;color:var(--navy);font-weight:600}
+.yt-info span{font-size:.72rem;color:var(--muted)}
+
+
+/* ══════════════════════════════════════════
+   CERTIFICADOS — Estilos
+══════════════════════════════════════════ */
+.cert-layout{display:grid;grid-template-columns:1fr 340px;gap:1.25rem;align-items:start}
+.cert-list-panel{background:var(--white);border-radius:var(--radius);border:1px solid var(--warm-grey);box-shadow:var(--shadow)}
+.cert-item{display:flex;align-items:center;gap:.85rem;padding:.85rem 1.1rem;border-bottom:1px solid var(--warm-grey);transition:background var(--trans)}
+.cert-item:last-child{border-bottom:none}
+.cert-item:hover{background:rgba(0,0,0,.015)}
+.cert-medal{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(245,158,11,.3)}
+.cert-medal svg{width:18px;height:18px;color:#fff}
+.cert-info{flex:1;min-width:0}
+.cert-curso{font-size:.83rem;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cert-sub{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+.cert-actions{display:flex;gap:.35rem;flex-shrink:0}
+.cert-side-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--warm-grey);box-shadow:var(--shadow);overflow:hidden;position:sticky;top:70px}
+.cert-preview-area{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 100%);padding:1.5rem 1.25rem;text-align:center;position:relative;overflow:hidden}
+.cert-preview-area::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 20L0 0h40z' fill='rgba(255,255,255,.03)'/%3E%3C/svg%3E") repeat}
+.cert-prev-title{font-family:var(--font-disp);font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:.35rem}
+.cert-prev-name{font-family:var(--font-disp);font-size:1.45rem;font-weight:700;color:var(--white);margin-bottom:.25rem}
+.cert-prev-line{width:40px;height:2px;background:var(--red);margin:.45rem auto}
+.cert-prev-curso{font-family:var(--font-disp);font-size:.78rem;color:rgba(255,255,255,.65);font-style:italic}
+.cert-prev-footer{display:flex;justify-content:center;gap:.65rem;margin-top:.85rem;flex-wrap:wrap}
+.cert-prev-seal{display:inline-flex;align-items:center;gap:.3rem;font-size:.65rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.2);border-radius:50px;padding:.25rem .7rem}
+.cert-side-body{padding:1.1rem}
+.cert-send-row{display:flex;align-items:center;gap:.6rem;padding:.65rem 0;border-bottom:1px solid var(--warm-grey)}
+.cert-send-row:last-child{border-bottom:none}
+.cert-send-av{width:30px;height:30px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:var(--white);flex-shrink:0}
+.cert-send-info{flex:1;min-width:0}
+.cert-send-name{font-size:.82rem;font-weight:500;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cert-send-status{font-size:.68rem;color:var(--muted)}
+.cert-template-preview{width:100%;border-radius:8px;overflow:hidden;border:1px solid var(--warm-grey);margin:1rem 0}
+/* Envío masivo */
+.bulk-send-card{background:linear-gradient(135deg,rgba(181,30,35,.06),rgba(181,30,35,.02));border:1px solid rgba(181,30,35,.2);border-radius:var(--radius);padding:1.1rem}
+.bulk-icon{width:42px;height:42px;border-radius:50%;background:rgba(181,30,35,.1);display:flex;align-items:center;justify-content:center;margin-bottom:.75rem}
+.bulk-icon svg{width:20px;height:20px;color:var(--red)}
+
+
+
+/* RESPONSIVE */
+@media(max-width:1150px){.stats-row{grid-template-columns:repeat(2,1fr)}.course-admin-grid{grid-template-columns:repeat(2,1fr)}.three-col{grid-template-columns:1fr}.cm-body{grid-template-columns:1fr}.cert-layout{grid-template-columns:1fr}.cert-side-card{position:static}}
+@media(max-width:860px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0}.two-col{grid-template-columns:1fr}.clases-layout{grid-template-columns:1fr}.content-layout{grid-template-columns:1fr}}
+@media(max-width:680px){.cm-body{display:block;padding:1rem}.cm-sidebar{margin-top:1rem}.modal-box--wide{max-width:98vw}.cert-grid{grid-template-columns:1fr}.modal-box{margin:.5rem;max-height:95vh}.pg-head-row{flex-direction:column;align-items:flex-start !important}}
+@media(max-width:580px){.stats-row{grid-template-columns:1fr 1fr}.pg{padding:1rem}.course-admin-grid{grid-template-columns:1fr}.form-row-2,.form-row-3{grid-template-columns:1fr}.table-wrap{margin:0 -.5rem;padding:0 .5rem}
+  .clases-layout .curso-selector-list{max-height:200px;overflow-y:auto}
+  .cert-sidebar{margin-top:1rem}
+  .cert-preview-area{padding:1rem}
+  .cert-modal-preview .cmp-student{font-size:1.3rem}
+  .cert-gen-modal .modal-box{flex-direction:column;height:auto;max-height:95vh}
+  .cert-gen-sidebar{width:100%;max-height:40vh;border-right:none;border-bottom:1px solid var(--warm-grey)}
+  .cert-gen-preview{min-height:50vh}
+}
+@media(max-width:400px){.stats-row{grid-template-columns:1fr}.search-bar{width:100% !important}.send-row-bulk{flex-direction:column;align-items:flex-start}}
+
+/* ═══════ CLASES & CONTENIDO ═══════ */
+.content-layout{display:grid;grid-template-columns:280px 1fr;gap:1.25rem;min-height:560px}
+.content-tree{background:var(--white);border-radius:var(--radius);border:1px solid var(--warm-grey);box-shadow:var(--shadow);overflow:hidden}
+.content-tree-head{padding:.9rem 1rem;border-bottom:1px solid var(--warm-grey);display:flex;align-items:center;justify-content:space-between;background:var(--cream)}
+.content-tree-head h4{font-family:var(--font-disp);font-size:.95rem;font-weight:600;color:var(--navy)}
+.ct-course-item{border-bottom:1px solid var(--warm-grey)}
+.ct-course-item:last-child{border-bottom:none}
+.ct-course-btn{width:100%;text-align:left;background:none;border:none;padding:.75rem 1rem;font-family:var(--font-body);font-size:.82rem;font-weight:600;color:var(--navy);cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:background var(--trans)}
+.ct-course-btn:hover,.ct-course-btn.active{background:rgba(181,30,35,.06);color:var(--red)}
+.ct-course-btn svg{width:14px;height:14px;flex-shrink:0;transition:transform var(--trans)}
+.ct-course-btn.open svg.chevron{transform:rotate(90deg)}
+.ct-modules{display:none;background:rgba(0,0,0,.02)}
+.ct-modules.open{display:block}
+.ct-mod-item{border-bottom:1px solid var(--warm-grey);cursor:pointer}
+.ct-mod-item:last-child{border-bottom:none}
+.ct-mod-btn{width:100%;text-align:left;background:none;border:none;padding:.55rem 1rem .55rem 2rem;font-family:var(--font-body);font-size:.8rem;font-weight:500;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:.4rem;transition:background var(--trans)}
+.ct-mod-btn:hover,.ct-mod-btn.active{background:rgba(181,30,35,.04);color:var(--red)}
+.ct-mod-badge{font-size:.65rem;color:var(--muted);background:var(--warm-grey);border-radius:50px;padding:.1rem .45rem;white-space:nowrap}
+/* Panel derecho contenido */
+.content-panel{background:var(--white);border-radius:var(--radius);border:1px solid var(--warm-grey);box-shadow:var(--shadow);display:flex;flex-direction:column}
+.content-panel-head{padding:1rem 1.25rem;border-bottom:1px solid var(--warm-grey);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.65rem;background:var(--cream);border-radius:var(--radius) var(--radius) 0 0}
+.content-panel-head h3{font-family:var(--font-disp);font-size:1.05rem;font-weight:600;color:var(--navy)}
+.content-panel-body{flex:1;padding:1.25rem;overflow-y:auto}
+/* Clase item */
+.clase-item{background:var(--cream);border:1px solid var(--warm-grey);border-radius:10px;padding:.85rem 1rem;margin-bottom:.7rem;display:flex;align-items:flex-start;gap:.85rem;transition:box-shadow var(--trans)}
+.clase-item:hover{box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.clase-drag{color:var(--muted);cursor:grab;font-size:1rem;padding:.15rem .25rem;flex-shrink:0;margin-top:.1rem}
+.clase-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.clase-ico svg{width:16px;height:16px}
+.clase-ico.yt{background:#fee2e2;color:#dc2626}
+.clase-ico.file{background:#dbeafe;color:#1d4ed8}
+.clase-ico.pdf{background:#fef3c7;color:#b45309}
+.clase-body{flex:1;min-width:0}
+.clase-title{font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:.2rem}
+.clase-meta{font-size:.73rem;color:var(--muted);display:flex;gap:.75rem;flex-wrap:wrap}
+.clase-actions{display:flex;gap:.35rem;margin-left:auto;flex-shrink:0}
+/* Materiales descargables */
+.mat-item{display:flex;align-items:center;gap:.75rem;padding:.6rem .85rem;background:var(--cream);border-radius:9px;border:1px solid var(--warm-grey);margin-bottom:.5rem}
+.mat-ico{width:32px;height:32px;border-radius:8px;background:var(--amber-bg);color:var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mat-ico svg{width:15px;height:15px}
+.mat-name{flex:1;font-size:.82rem;font-weight:500;color:var(--navy)}
+.mat-size{font-size:.72rem;color:var(--muted)}
+/* Inscritos panel */
+.enrolled-list{display:flex;flex-direction:column;gap:.4rem}
+.enrolled-row{display:flex;align-items:center;gap:.65rem;padding:.5rem .65rem;border-radius:8px;background:var(--cream);border:1px solid var(--warm-grey)}
+.enrolled-av{width:28px;height:28px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:var(--white);flex-shrink:0}
+.enrolled-name{flex:1;font-size:.81rem;font-weight:500;color:var(--navy)}
+.enrolled-prog{font-size:.72rem;color:var(--muted)}
+/* Content empty state */
+.content-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem;color:var(--muted);text-align:center;gap:.65rem}
+.content-empty svg{width:40px;height:40px;opacity:.3}
+.content-empty p{font-size:.85rem}
+
+/* ═══════ CERTIFICADOS ═══════ */
+.cert-card{background:var(--white);border-radius:var(--radius);border:1px solid var(--warm-grey);box-shadow:var(--shadow);overflow:hidden;transition:transform var(--trans),box-shadow var(--trans)}
+.cert-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.1)}
+.cert-preview{height:120px;background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 60%,var(--red-dark) 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.cert-preview::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(255,255,255,.03) 6px,rgba(255,255,255,.03) 7px)}
+.cert-preview-inner{text-align:center;color:var(--white);z-index:1}
+.cert-preview-inner svg{width:28px;height:28px;opacity:.7;margin-bottom:.35rem}
+.cert-preview-inner span{display:block;font-family:var(--font-disp);font-size:.85rem;font-weight:600;letter-spacing:.05em}
+.cert-body{padding:.9rem 1rem 1rem}
+.cert-title{font-family:var(--font-disp);font-size:.95rem;font-weight:600;color:var(--navy);margin-bottom:.35rem}
+.cert-meta{font-size:.74rem;color:var(--muted);margin-bottom:.75rem}
+.cert-actions{display:flex;gap:.4rem;flex-wrap:wrap}
+/* Envíos tabla */
+.send-row-bulk{background:var(--amber-bg);border:1px solid var(--amber);border-radius:9px;padding:.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.send-row-bulk span{font-size:.83rem;color:var(--amber);font-weight:600}
+/* Modal cert */
+.cert-modal-preview{background:linear-gradient(135deg,var(--navy),var(--navy-mid) 60%,#2a1a2e);border-radius:12px;padding:2rem;text-align:center;color:var(--white);margin-bottom:1.25rem;position:relative;overflow:hidden}
+.cert-modal-preview::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(255,255,255,.02) 8px,rgba(255,255,255,.02) 9px)}
+.cert-modal-preview .cmp-badge{font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:.5rem}
+.cert-modal-preview .cmp-title{font-family:var(--font-disp);font-size:1.4rem;font-weight:700;margin-bottom:.25rem}
+.cert-modal-preview .cmp-sub{font-size:.8rem;opacity:.6;margin-bottom:1rem}
+.cert-modal-preview .cmp-student{font-family:var(--font-disp);font-size:1.8rem;font-weight:700;color:#f0c040;margin-bottom:.35rem}
+.cert-modal-preview .cmp-course{font-size:.85rem;opacity:.75;line-height:1.5}
+.cert-modal-preview .cmp-footer{margin-top:1rem;font-size:.72rem;opacity:.4;letter-spacing:.08em}
+/* Historial envíos */
+.send-hist-item{display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--warm-grey)}
+.send-hist-item:last-child{border-bottom:none}
+.send-hist-ico{width:30px;height:30px;border-radius:50%;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.send-hist-ico svg{width:13px;height:13px}
+.send-hist-body{flex:1}
+.send-hist-body strong{display:block;font-size:.82rem;font-weight:600;color:var(--navy)}
+.send-hist-body span{font-size:.74rem;color:var(--muted)}
+.send-hist-t{font-size:.7rem;color:var(--muted);white-space:nowrap}
+/* Cert grid */
+.cert-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;margin-bottom:1.25rem}
+@media(max-width:1150px){.cert-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.cert-grid{grid-template-columns:1fr}}
+
+/* ═══════ CERTIFICADO A4 — GENERADOR ═══════ */
+.cert-gen-modal .modal-box{max-width:1100px;width:95vw;height:92vh;display:flex;overflow:hidden;padding:0}
+.cert-gen-sidebar{width:300px;flex-shrink:0;padding:1.35rem;overflow-y:auto;border-right:1px solid var(--warm-grey);background:var(--cream);display:flex;flex-direction:column}
+.cert-gen-sidebar h3{font-family:var(--font-disp);font-size:1.1rem;font-weight:700;color:var(--navy);margin-bottom:.85rem;padding-bottom:.6rem;border-bottom:2px solid var(--dorado)}
+.cert-gen-sidebar .fg{margin-bottom:.6rem}
+.cert-gen-sidebar .fg label{font-size:.72rem;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:.2rem}
+.cert-gen-sidebar .fg input,.cert-gen-sidebar .fg select{padding:.5rem .7rem;border:1.5px solid var(--warm-grey);border-radius:8px;font-family:var(--font-body);font-size:.82rem;color:var(--text);background:var(--white);width:100%;outline:none;transition:border-color var(--trans)}
+.cert-gen-sidebar .fg input:focus,.cert-gen-sidebar .fg select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(181,30,35,.08)}
+.cert-gen-sidebar .fg .cert-dni-auto{font-size:.75rem;color:var(--muted);font-style:italic;margin-top:.15rem}
+.cert-gen-actions{display:flex;gap:.55rem;margin-top:auto;padding-top:1rem;border-top:1px solid var(--warm-grey);flex-wrap:wrap}
+.cert-gen-btn-print{background:#0e3854;color:#fff;border:none;padding:.6rem 1.2rem;font-weight:600;border-radius:8px;cursor:pointer;font-family:var(--font-body);font-size:.8rem;letter-spacing:.5px;text-transform:uppercase;transition:background var(--trans);display:inline-flex;align-items:center;gap:.4rem;flex:1;justify-content:center}
+.cert-gen-btn-print:hover{background:#082133}
+.cert-gen-btn-cancel{background:transparent;color:var(--muted);border:1.5px solid var(--mid-grey);padding:.55rem 1rem;border-radius:8px;cursor:pointer;font-family:var(--font-body);font-size:.8rem;font-weight:500;transition:all var(--trans);flex:1;justify-content:center;display:inline-flex;align-items:center}
+.cert-gen-btn-cancel:hover{border-color:var(--navy);color:var(--navy)}
+.cert-gen-preview{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:1.25rem;background:#ECEAE6;position:relative}
+.cert-gen-preview .certificate-page{transform:scale(.58);transform-origin:center center}
+
+/* A4 Certificate Page */
+.certificate-page{width:297mm;height:210mm;background:#fff;position:relative;display:flex;justify-content:center;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.18);flex-shrink:0;transform-origin:top center;font-family:'Montserrat',sans-serif}
+.cert-outer{border:8px double #0e3854;width:100%;height:100%;padding:8px}
+.cert-inner{border:2px solid #c5a059;width:100%;height:100%;padding:20px 35px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;position:relative}
+.cert-corner{position:absolute;width:22px;height:22px;border:3px solid #c5a059}
+.cert-corner.tl{top:12px;left:12px;border-right:none;border-bottom:none}
+.cert-corner.tr{top:12px;right:12px;border-left:none;border-bottom:none}
+.cert-corner.bl{bottom:12px;left:12px;border-right:none;border-top:none}
+.cert-corner.br{bottom:12px;right:12px;border-left:none;border-top:none}
+.cert-hdr-logo{background:#0e3854;padding:8px 30px;border-radius:4px;display:inline-flex;align-items:center;height:58px;box-shadow:0 3px 8px rgba(0,0,0,.1);margin-bottom:2px}
+.cert-hdr-logo img{height:100%;width:auto;object-fit:contain}
+.cert-inst-title{font-family:'Cinzel',serif;color:#0e3854;font-size:17px;font-weight:700;letter-spacing:2px;margin-top:5px}
+.cert-inst-sub{font-size:9px;color:#666;text-transform:uppercase;letter-spacing:4px;font-weight:600;margin-top:2px}
+.cert-grant{font-family:'Playfair Display',serif;font-style:italic;font-size:13px;color:#666;margin-top:5px}
+.cert-main-title{font-family:'Cinzel',serif;font-size:30px;color:#0e3854;letter-spacing:8px;font-weight:700;margin:3px 0}
+.cert-main-title::after{content:'';display:block;width:70px;height:2px;background:#c5a059;margin:5px auto 0}
+.cert-student-name{font-size:22px;font-weight:700;color:#0e3854;border-bottom:1px solid #e0e0e0;padding-bottom:3px;min-width:55%;display:inline-block;margin:3px 0}
+.cert-desc{font-size:11px;color:#2b2b2b;line-height:1.5;max-width:85%;margin:3px auto}
+.cert-course-name{font-size:16px;font-weight:700;color:#0e3854;display:block;margin:4px 0;letter-spacing:.5px}
+.cert-hours{font-weight:600;color:#c5a059}
+.cert-fecha{font-size:10px;color:#2b2b2b;font-style:italic;margin-bottom:4px}
+.cert-sigs{width:100%;display:flex;justify-content:center;align-items:flex-end;margin-top:10px}
+.cert-sig-row{display:flex;gap:35px;justify-content:center;width:100%}
+.cert-sig{width:155px;text-align:center;display:flex;flex-direction:column;justify-content:flex-end}
+.cert-sig-img-wrap{height:50px;position:relative;display:flex;justify-content:center;align-items:flex-end}
+.cert-sig-img-wrap img{max-height:42px;max-width:120px;object-fit:contain;position:absolute;bottom:3px;z-index:1}
+.cert-sig-line{width:100%;height:1px;background:#b5b5b5;margin:4px 0;z-index:2;position:relative}
+.cert-sig-name{font-size:8px;font-weight:700;color:#2b2b2b;text-transform:uppercase;margin-top:1px}
+.cert-sig-role{font-size:7.5px;color:#666;margin-top:1px;line-height:1.2}
+
+/* ═══════ CERTIFICADO A4 — DISEÑO EXACTO certificado.html ═══════ */
+.cert-a4-page{width:297mm;height:210mm;background-color:#fff;padding:14mm 16mm;position:relative;box-shadow:0 10px 30px rgba(0,0,0,.15);display:flex;justify-content:center;align-items:center;background-image:radial-gradient(rgba(14,56,84,.02) 2px,transparent 2px);background-size:30px 30px;font-family:'Montserrat',sans-serif;flex-shrink:0;transition:transform .2s ease}
+.cert-a4-outer{border:8px double #0e3854;width:100%;height:100%;padding:10px;position:relative}
+.cert-a4-inner{border:2px solid #c5a059;width:100%;height:100%;padding:25px 40px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;position:relative}
+.corner-deco{position:absolute;width:25px;height:25px;border:4px solid #c5a059}
+.corner-deco.top-left{top:15px;left:15px;border-right:none;border-bottom:none}
+.corner-deco.top-right{top:15px;right:15px;border-left:none;border-bottom:none}
+.corner-deco.bottom-left{bottom:15px;left:15px;border-right:none;border-top:none}
+.corner-deco.bottom-right{bottom:15px;right:15px;border-left:none;border-top:none}
+.header-logo{width:100%;display:flex;justify-content:center;margin-bottom:2px}
+.logo-container{background-color:#0e3854;padding:10px 35px;border-radius:4px;display:flex;justify-content:center;align-items:center;height:68px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+.logo-container img{height:100%;width:auto;object-fit:contain}
+.institution-title{font-family:'Cinzel',serif;color:#0e3854;font-size:19px;font-weight:700;letter-spacing:2px;margin-top:8px}
+.institution-subtitle{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:4px;font-weight:600;margin-top:3px}
+.grant-text{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;color:#666;margin-top:8px}
+.certificate-title{font-family:'Cinzel',serif;font-size:34px;color:#0e3854;letter-spacing:8px;font-weight:700;margin:4px 0;position:relative}
+.certificate-title::after{content:'';display:block;width:80px;height:2px;background-color:#c5a059;margin:6px auto 0 auto}
+.student-name{font-size:26px;font-weight:700;color:#0e3854;border-bottom:1px solid #e0e0e0;padding-bottom:4px;min-width:60%;display:inline-block;margin:4px 0}
+.course-description{font-size:12.5px;color:#2b2b2b;line-height:1.5;max-width:85%;margin:4px auto}
+.course-name{font-size:19px;font-weight:700;color:#0e3854;display:block;margin:6px 0;letter-spacing:.5px}
+.hours-badge{font-weight:600;color:#c5a059}
+.footer-section{width:100%;display:flex;justify-content:center;align-items:flex-end;margin-top:15px;padding:0 5px}
+.signature-container{display:flex;gap:40px;justify-content:center;width:100%}
+.signature-block{width:170px;text-align:center;display:flex;flex-direction:column;justify-content:flex-end}
+.signature-wrap{height:65px;position:relative;display:flex;justify-content:center;align-items:flex-end}
+.signature-wrap img{max-height:55px;max-width:150px;object-fit:contain;position:absolute;bottom:3px;z-index:1}
+.signature-line-divider{width:100%;height:1px;background-color:#b5b5b5;margin:5px 0;z-index:2;position:relative}
+.signature-name{font-size:9px;font-weight:700;color:#2b2b2b;text-transform:uppercase;margin-top:2px}
+.signature-title{font-size:8.5px;color:#666;margin-top:2px;line-height:1.2}
+
+/* Print only certificate */
+@media print{
+  body *{visibility:hidden!important}
+  .cert-print-zone,.cert-print-zone *{visibility:visible!important}
+  .cert-print-zone{position:absolute;left:0;top:0;width:297mm;height:210mm;margin:0!important;padding:0!important;overflow:visible!important;background:#fff}
+  .cert-a4-page{box-shadow:none!important;margin:0!important;width:297mm;height:210mm}
+  @page{size:A4 landscape;margin:0}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo" style="justify-content:space-between">
+    <img src="logo.png" alt="DEC" style="height:32px"/>
+    <button class="sb-close" onclick="document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('open')" aria-label="Cerrar menú" style="display:none;background:none;border:none;color:rgba(255,255,255,.55);font-size:1.3rem;cursor:pointer;padding:.2rem;line-height:1">✕</button>
+  </div>
+<div class="sb-user">
+    <div class="sb-av" id="sbAvatar">JR</div>
+    <div class="sb-ui"><strong id="sbNombre">Juan Rodríguez</strong><span id="sbRol">Administrador</span></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-lbl">General</div>
+    <a class="sb-a active" data-page="dashboard" onclick="nav('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+    </a>
+    <div class="sb-lbl">Gestión</div>
+    <a class="sb-a" data-page="usuarios" onclick="nav('usuarios')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Usuarios
+    </a>
+    <a class="sb-a" data-page="matriculas" onclick="nav('matriculas')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Matrículas
+    </a>
+    <a class="sb-a" data-page="cursos" onclick="nav('cursos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Cursos
+    </a>
+    <a class="sb-a" data-page="contenido" onclick="nav('contenido')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Clases &amp; Contenido
+    </a>    
+    <a class="sb-a" data-page="trabajos" onclick="nav('trabajos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Trabajos
+    </a>
+    <a class="sb-a" data-page="certificados" onclick="nav('certificados')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>Certificados
+    </a>
+    <a class="sb-a" data-page="reportes" onclick="nav('reportes')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Reportes
+    </a>
+    <div class="sb-lbl">Configuración</div>
+    <a class="sb-a" data-page="config" onclick="nav('config')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Configuración
+    </a>
+  </nav>
+  <div class="sb-footer">
+    <a class="sb-a logout" href="#" id="btnLogout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar sesión
+    </a>
+  </div>
+</aside>
+
+<div class="sb-overlay" id="sbOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('open')"></div>
+
+<main class="main">
+
+<!-- ═══════════ DASHBOARD ═══════════ -->
+<div class="pg active" id="pg-dashboard">
+<div class="pg-head">
+  <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+  <div>
+    <h2>Resumen general</h2>
+    <p id="dashboardDate">Cargando...</p>
+  </div>
+</div>
+  <div class="stats-row">
+    <div class="sc red">
+      <div class="sc-ico red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+      <div class="sc-val" id="stat-usuarios">247</div><div class="sc-label">Usuarios registrados</div><div class="sc-trend up">↑ +18 este mes</div>
+    </div>
+    <div class="sc green">
+      <div class="sc-ico green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+      <div class="sc-val">389</div><div class="sc-label">Matrículas registradas</div><div class="sc-trend up">↑ +42 este mes</div>
+    </div>
+    <div class="sc amber">
+      <div class="sc-ico amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+      <div class="sc-val">S/ 27,430</div><div class="sc-label">Ingresos del mes</div><div class="sc-trend up">↑ +12% vs mes anterior</div>
+    </div>
+    <div class="sc blue">
+      <div class="sc-ico blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
+      <div class="sc-val">63</div><div class="sc-label">Certificados emitidos</div><div class="sc-trend up">↑ +9 esta semana</div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title" id="chartTitleMat">Matrículas por mes</div>
+      <div class="chart-mock">
+        <div class="bar" style="flex:1;height:45%;background:linear-gradient(180deg,var(--red-light),var(--red));opacity:.5" data-val="28"></div>
+        <div class="bar" style="flex:1;height:55%;background:linear-gradient(180deg,var(--red-light),var(--red));opacity:.6" data-val="34"></div>
+        <div class="bar" style="flex:1;height:65%;background:linear-gradient(180deg,var(--red-light),var(--red));opacity:.7" data-val="41"></div>
+        <div class="bar" style="flex:1;height:70%;background:linear-gradient(180deg,var(--red-light),var(--red));opacity:.8" data-val="44"></div>
+        <div class="bar" style="flex:1;height:100%;background:linear-gradient(180deg,var(--red-light),var(--red))" data-val="63"></div>
+      </div>
+      <div class="chart-labels"><div class="chart-label">Ene</div><div class="chart-label">Feb</div><div class="chart-label">Mar</div><div class="chart-label">Abr</div><div class="chart-label">May</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Matriculados por curso</div>
+      <div class="donut-wrap">
+        <svg class="donut-svg" width="110" height="110" viewBox="0 0 110 110">
+          <circle cx="55" cy="55" r="40" fill="none" stroke="#EDEBE7" stroke-width="18"/>
+          <circle cx="55" cy="55" r="40" fill="none" stroke="var(--red)" stroke-width="18" stroke-dasharray="251.3" stroke-dashoffset="0" transform="rotate(-90 55 55)"/>
+          <circle cx="55" cy="55" r="40" fill="none" stroke="var(--navy)" stroke-width="18" stroke-dasharray="251.3" stroke-dashoffset="-91.7" transform="rotate(-90 55 55)"/>
+          <circle cx="55" cy="55" r="40" fill="none" stroke="#f59e0b" stroke-width="18" stroke-dasharray="251.3" stroke-dashoffset="-167.9" transform="rotate(-90 55 55)"/>
+          <text x="55" y="55" text-anchor="middle" dy=".3em" font-family="Cormorant Garamond" font-size="14" font-weight="700" fill="var(--navy)" id="donut-total">389</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="dl-item"><div class="dl-dot" style="background:var(--red)"></div><span>Digitalización — <strong id="dl-dig">142</strong></span></div>
+          <div class="dl-item"><div class="dl-dot" style="background:var(--navy)"></div><span>Marketing — <strong id="dl-mkt">118</strong></span></div>
+          <div class="dl-item"><div class="dl-dot" style="background:#f59e0b"></div><span>Gestión — <strong id="dl-ges">129</strong></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Actividad reciente</h3><button class="btn-ghost" style="font-size:.75rem">Ver todo</button></div>
+    <div class="act-item"><div class="act-ico green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="act-body"><strong>María Pérez obtuvo su certificado</strong><span>Digitalización en la Industria del Turismo</span></div><span class="act-t">Hace 1h</span></div>
+    <div class="act-item"><div class="act-ico red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/></svg></div><div class="act-body"><strong>Nueva matrícula: Carlos Quispe</strong><span>Gestión de Destinos Turísticos Sostenibles</span></div><span class="act-t">Hace 2h</span></div>
+    <div class="act-item"><div class="act-ico amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div><div class="act-body"><strong>Trabajo enviado para calificar</strong><span>Ana Torres — Marketing Gastronómico · Módulo 3</span></div><span class="act-t">Hace 3h</span></div>
+    <div class="act-item"><div class="act-ico blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="act-body"><strong>Nuevo usuario registrado: Pedro Mamani</strong><span>Colegiado COLITUR-05891 · Lima</span></div><span class="act-t">Hace 5h</span></div>
+    <div class="act-item"><div class="act-ico navy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><div class="act-body"><strong>Pago confirmado: S/ 80</strong><span>Luis Ramos — Digitalización en Turismo</span></div><span class="act-t">Hace 6h</span></div>
+  </div>
+</div>
+
+<!-- ═══════════ USUARIOS ═══════════ -->
+<div class="pg" id="pg-usuarios">
+  <div class="pg-head-row">
+    <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <div><h2>Gestión de Usuarios</h2><p id="userCountLabel">Cargando...</p></div>
+    <div style="display:flex;gap:.65rem;flex-wrap:wrap">
+      <input type="text" class="search-bar" placeholder="Buscar usuario..." style="width:210px" oninput="filterUsers(this.value)"/>
+      <button class="btn-red" onclick="openModal('newUserModal')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo Usuario
+      </button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Usuario</th><th>DNI</th><th>N° Colegiado</th><th>Rol</th><th>Cursos</th><th>Teléfono</th><th>Registro</th><th>Acciones</th></tr></thead>
+        <tbody id="usersTbody">
+          <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted)">Cargando usuarios...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CURSOS ═══════════ -->
+<div class="pg" id="pg-cursos">
+  <div class="pg-head-row">
+    <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <div>
+      <h2>Gestión de Cursos</h2>
+      <p id="courseCountLabel">3 cursos en la plataforma</p>
+    </div>
+    <div style="display:flex;gap:.65rem;flex-wrap:wrap;align-items:center">
+      <input type="text" class="search-bar" placeholder="Buscar curso..." style="width:200px" oninput="filterCourses(this.value)"/>
+      <select class="search-bar" style="width:160px" onchange="filterByStatus(this.value)">
+        <option value="">Todos los estados</option>
+        <option value="published">Publicados</option>
+        <option value="draft">Borradores</option>
+      </select>
+      <button class="btn-red" onclick="abrirCrudCurso(0)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo curso
+      </button>
+    </div>
+  </div>
+  <div class="course-admin-grid" id="courseGrid">
+    <!-- Renderizado dinámicamente por JS -->
+  </div>
+  <div id="noCoursesMsg" style="display:none;text-align:center;padding:3rem;color:var(--muted);font-size:.9rem">
+    No se encontraron cursos con ese criterio.
+  </div>
+</div>
+
+<!-- ═══════════ MATRÍCULAS ═══════════ -->
+<div class="pg" id="pg-matriculas">
+  <div class="pg-head-row">
+    <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <div><h2>Matrículas</h2><p id="matCountLabel">Cargando...</p></div>
+    <div style="display:flex;gap:.65rem;flex-wrap:wrap">
+      <button class="btn-red" onclick="openNewMatriculaModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nueva matrícula
+      </button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Estudiante</th><th>Curso</th><th>Fecha</th><th>Monto</th><th>Medio de pago</th><th>Estado pago</th><th>Progreso</th><th>Acción</th></tr></thead>
+        <tbody id="matTbody">
+          <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted)">Cargando matrículas...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CLASES & CONTENIDO ═══════════ -->
+<div class="pg" id="pg-contenido">
+  <div class="pg-head-row">
+    <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <div><h2>Clases & Contenido</h2><p>Administra los temas, módulos y clases de cada curso</p></div>
+    <div id="clasesHeaderActions" style="display:flex;gap:.65rem;align-items:center"></div>
+  </div>
+  <div class="clases-layout">
+    <!-- Selector de curso -->
+    <div>
+      <div class="curso-selector-list" id="clasesCursoList">
+        <div class="csl-head">Selecciona un curso</div>
+        <!-- Se genera por JS -->
+      </div>
+    </div>
+    <!-- Panel de clases del curso seleccionado -->
+    <div id="clasesPanelWrap">
+      <div style="background:var(--white);border-radius:var(--radius);border:1px solid var(--warm-grey);padding:3rem;text-align:center;color:var(--muted);box-shadow:var(--shadow)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 1rem;opacity:.25"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+        <p style="font-size:.88rem">Selecciona un curso de la lista para ver y gestionar sus clases.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TRABAJOS ═══════════ -->
+<div class="pg" id="pg-trabajos">
+  <div class="pg-head-row">
+    <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <div><h2>Trabajos por calificar</h2><p id="trabajosResumen">Cargando...</p></div>
+    <div style="display:flex;gap:.65rem">
+      <select class="search-bar" style="width:180px" id="trabajosFilterCurso" onchange="cargarTrabajos()">
+        <option value="">Todos los cursos</option>
+      </select>
+      <select class="search-bar" style="width:145px" id="trabajosFilterEstado" onchange="cargarTrabajos()">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="calificado">Calificado</option>
+      </select>
+    </div>
+  </div>
+  <div id="trabajosContainer">
+    <div style="text-align:center;padding:2.5rem;color:var(--muted)">Cargando trabajos...</div>
+  </div>
+</div>
+
+<!-- ═══════════ REPORTES ═══════════ -->
+<div class="pg" id="pg-reportes">
+  <div class="pg-head">
+    <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <div><h2>Reportes y Estadísticas</h2></div>
+  </div>
+  <div class="three-col">
+    <div class="card">
+      <div class="card-title">Tasa de completitud</div>
+      <div id="reportCompletitud" style="display:flex;flex-direction:column;gap:.55rem;margin-top:.5rem">
+        <p style="font-size:.82rem;color:var(--muted)">Cargando...</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Promedio de calificaciones</div>
+      <div id="reportPromedio" style="text-align:center;padding:1rem 0">
+        <div style="font-family:var(--font-disp);font-size:3rem;font-weight:700;color:var(--navy)">—</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="reportIngresosTitle">Ingresos acumulados</div>
+      <div id="reportIngresos" style="text-align:center;padding:1rem 0">
+        <div style="font-family:var(--font-disp);font-size:2.5rem;font-weight:700;color:var(--amber)">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ═══════════ CONFIGURACIÓN ═══════════ -->
+<div class="pg" id="pg-config">
+  <div class="pg-head">
+    <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <div><h2>Configuración de la Plataforma</h2></div>
+  </div>
+  
+  <div class="two-col">
+    <!-- Tarjeta 1: Datos de la Plataforma -->
+    <!-- Tarjeta 3: Docentes -->
+    <div class="card">
+      <div class="card-head"><h3>Registrar Docente / Instructor</h3></div>
+      <div class="form-section">
+        <div class="fg"><label>Nombres completos *</label><input type="text" id="cfgDocNombre" placeholder="Ej: Dr. Juan Rodríguez"/></div>
+        <div class="fg"><label>Profesión / Especialidad</label><input type="text" id="cfgDocProfesion" placeholder="Ej: Magister en Turismo Sostenible"/></div>
+        <div class="fg"><label>Descripción breve</label><textarea id="cfgDocDescripcion" rows="3" placeholder="Experiencia y logros del docente..."></textarea></div>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn-red" onclick="crearDocente()">Registrar docente</button>
+          <button class="btn-ghost" onclick="limpiarDocente()">Limpiar</button>
+        </div>
+        <div id="docentesList" style="margin-top:.75rem"></div>
+      </div>
+    </div>
+
+        <!-- Tarjeta 2: Categoría -->
+    <div class="card">
+      <div class="card-head"><h3>Gestionar Categorías</h3></div>
+      <div class="form-section">
+        <div class="fg">
+          <label>Nueva categoría de curso</label>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input type="text" id="cfgCatNombre" placeholder="Ej: Gestión Hotelera Avanzada" style="flex:1;margin-bottom:0;"/>
+            <button class="btn-green" onclick="crearCategoria()" style="white-space:nowrap;margin-top:0;">Registrar</button>
+          </div>
+        </div>
+        <button class="btn-ghost" onclick="limpiarCategoria()" style="margin-top:.4rem">Limpiar</button>
+        <div id="categoriasList" style="margin-top:.75rem"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CERTIFICADOS ═══════════ -->
+<div class="pg" id="pg-certificados">
+  <div class="pg-head-row">
+    <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+    <div><h2>Certificados</h2><p id="certCountLabel">Gestiona y genera certificados por curso</p></div>
+    <div style="display:flex;gap:.65rem;flex-wrap:wrap">
+      <button class="btn-red" onclick="abrirGenerarCert()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        Generar Certificado
+      </button>
+      <button class="btn-ghost" onclick="openNewCertModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nueva plantilla
+      </button>
+    </div>
+  </div>
+  <div class="cert-layout">
+    <!-- Lista de certificados por curso -->
+    <div>
+      <!-- Lista -->
+      <div class="card">
+        <div class="card-head"><h3>Certificados por curso</h3><span class="badge blue" id="certTotalBadge">3 plantillas</span></div>
+        <div id="certListEl"><!-- JS --></div>
+      </div>
+    </div>
+    <!-- Panel derecho: preview + enviados recientes -->
+    <div>
+      <div class="cert-side-card">
+        <div class="cert-preview-area" id="certSidebarPreview" style="cursor:pointer;padding:.75rem;background:#ECEAE6" onclick="openSidebarA4Modal()" title="Click para ver en tamaño completo">
+          <div style="width:100%;aspect-ratio:297/210;background:#fff;position:relative;display:flex;justify-content:center;align-items:center;box-shadow:0 3px 12px rgba(0,0,0,.18);border-radius:3px;overflow:hidden;font-family:'Montserrat',sans-serif">
+            <div style="border:4px double #0e3854;width:100%;height:100%;padding:4px">
+              <div style="border:1px solid #c5a059;width:100%;height:100%;padding:8px 12px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;position:relative">
+                <div style="position:absolute;width:10px;height:10px;border:2px solid #c5a059;top:6px;left:6px;border-right:none;border-bottom:none"></div>
+                <div style="position:absolute;width:10px;height:10px;border:2px solid #c5a059;top:6px;right:6px;border-left:none;border-bottom:none"></div>
+                <div style="position:absolute;width:10px;height:10px;border:2px solid #c5a059;bottom:6px;left:6px;border-right:none;border-top:none"></div>
+                <div style="position:absolute;width:10px;height:10px;border:2px solid #c5a059;bottom:6px;right:6px;border-left:none;border-top:none"></div>
+                <div>
+                  <div style="background:#0e3854;padding:3px 14px;border-radius:3px;display:inline-flex;align-items:center;height:26px">
+                    <img src="logo.png" alt="COLITUR" style="height:100%;width:auto;object-fit:contain"/>
+                  </div>
+                  <div style="font-family:'Cinzel',serif;color:#0e3854;font-size:6.5px;font-weight:700;letter-spacing:1px;margin-top:3px">COLEGIO DE LICENCIADOS EN TURISMO DE LIMA</div>
+                  <div style="font-size:3.5px;color:#666;text-transform:uppercase;letter-spacing:2px;font-weight:600;margin-top:1px">Dirección de Estudios Continuos</div>
+                </div>
+                <div>
+                  <div style="font-family:'Playfair Display',serif;font-style:italic;font-size:5px;color:#666;margin-top:2px">Otorga el presente</div>
+                  <div style="font-family:'Cinzel',serif;font-size:12px;color:#0e3854;letter-spacing:3px;font-weight:700;margin:2px 0">CERTIFICADO</div>
+                  <div style="font-size:9px;font-weight:700;color:#0e3854;border-bottom:1px solid #e0e0e0;padding-bottom:2px;min-width:50%;display:inline-block;margin:2px 0" id="certPrevMiniNombre">Nombre del Estudiante</div>
+                  <div style="font-size:4px;color:#2b2b2b;line-height:1.4;max-width:88%;margin:2px auto">
+                    Con documento de identidad <strong>D.N.I. N° 00000000</strong>, por haber aprobado satisfactoriamente el curso de capacitación:
+                    <span style="font-size:6.5px;font-weight:700;color:#0e3854;display:block;margin:2px 0" id="certPrevMiniCurso">Nombre del Curso</span>
+                    Desarrollado por la Dirección de Estudios Continuos de COLITUR Lima, con una duración de <span style="font-weight:600;color:#c5a059"><span id="certPrevMiniHoras">40</span> horas lectivas</span>.
+                  </div>
+                  <div style="font-size:4px;color:#2b2b2b;font-style:italic;margin-bottom:1px">Lima, <span id="certPrevMiniFecha">Julio 2026</span></div>
+                </div>
+                <div style="width:100%;display:flex;justify-content:center;gap:12px;align-items:flex-end">
+                  <div style="width:55px;text-align:center">
+                    <img src="firma1.png" alt="Firma" id="certPrevMiniFirma1" style="max-height:16px;max-width:45px;object-fit:contain;margin-bottom:1px"/>
+                    <div style="width:100%;height:.5px;background:#b5b5b5;margin:1px 0"></div>
+                    <div style="font-size:3px;font-weight:700;color:#2b2b2b;text-transform:uppercase" id="certPrevMiniCargo1">Decano</div>
+                  </div>
+                  <div style="width:55px;text-align:center">
+                    <img src="firma2.jpg" alt="Firma" id="certPrevMiniFirma2" style="max-height:16px;max-width:45px;object-fit:contain;margin-bottom:1px"/>
+                    <div style="width:100%;height:.5px;background:#b5b5b5;margin:1px 0"></div>
+                    <div style="font-size:3px;font-weight:700;color:#2b2b2b;text-transform:uppercase" id="certPrevMiniCargo2">Vicedecano</div>
+                  </div>
+                  <div style="width:55px;text-align:center">
+                    <img src="firma3.jpg" alt="Firma" id="certPrevMiniFirma3" style="max-height:16px;max-width:45px;object-fit:contain;margin-bottom:1px"/>
+                    <div style="width:100%;height:.5px;background:#b5b5b5;margin:1px 0"></div>
+                    <div style="font-size:3px;font-weight:700;color:#2b2b2b;text-transform:uppercase" id="certPrevMiniCargo3">Dir. Secretaria</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:.6rem">
+            <div style="font-size:.72rem;font-weight:600;color:var(--navy)" id="certPrevDocente"></div>
+            <div style="font-size:.65rem;color:var(--muted);margin-top:.15rem">Click para ver en tamaño completo</div>
+          </div>
+        </div>
+        <div class="cert-side-body">
+          <div style="font-size:.8rem;font-weight:600;color:var(--navy);margin-bottom:.65rem">Enviados recientemente</div>
+          <div id="certRecentList">
+            <div class="cert-send-row"><div class="cert-send-av" style="background:var(--red)">MP</div><div class="cert-send-info"><div class="cert-send-name">María Pérez Quispe</div><div class="cert-send-status">Digitalización — Hace 1h · <span style="color:var(--green)">✓ Descargado</span></div></div></div>
+            <div class="cert-send-row"><div class="cert-send-av" style="background:var(--green)">LR</div><div class="cert-send-info"><div class="cert-send-name">Luis Ramos Huanca</div><div class="cert-send-status">Gestión de Destinos — Hace 3h · <span style="color:var(--green)">✓ Descargado</span></div></div></div>
+            <div class="cert-send-row"><div class="cert-send-av">AT</div><div class="cert-send-info"><div class="cert-send-name">Ana Torres Rivera</div><div class="cert-send-status">Marketing Gastronómico — Ayer · <span style="color:var(--amber)">⏳ Pendiente</span></div></div></div>
+          </div>
+          <div style="margin-top:1rem;border-top:1px solid var(--warm-grey);padding-top:.85rem">
+            <div style="font-size:.78rem;font-weight:600;color:var(--navy);margin-bottom:.5rem">Estadísticas</div>
+            <div style="display:flex;flex-direction:column;gap:.35rem">
+              <div style="display:flex;justify-content:space-between;font-size:.78rem"><span style="color:var(--muted)">Total emitidos</span><strong id="certStatTotal">0</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:.78rem"><span style="color:var(--muted)">Descargados</span><strong style="color:var(--green)" id="certStatDown">0</strong></div>
+              <div style="display:flex;justify-content:space-between;font-size:.78rem"><span style="color:var(--muted)">Pendientes</span><strong style="color:var(--amber)" id="certStatPend">0</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: NUEVA CLASE
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="newClaseModal">
+  <div class="modal-box" style="max-width:640px">
+    <button class="modal-close" onclick="closeModal('newClaseModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header">
+      <h2>Nueva Clase</h2>
+      <p>Agrega una clase al módulo seleccionado</p>
+    </div>
+    <div class="modal-body">
+      <div class="crud-tabs">
+        <button class="crud-tab active" onclick="switchCrudTab('nc-info',this)">Información</button>
+        <button class="crud-tab" onclick="switchCrudTab('nc-video',this)">Video / Contenido</button>
+        <button class="crud-tab" onclick="switchCrudTab('nc-mat',this)">Materiales</button>
+      </div>
+      <div class="crud-panel active" id="nc-info">
+        <div class="fg"><label>Título de la clase *</label><input type="text" placeholder="Ej: Introducción a los destinos sostenibles"/></div>
+        <div class="form-row-2">
+          <div class="fg"><label>Módulo</label>
+            <select><option>Módulo 1: Conceptos Fundamentales</option><option>Módulo 2: Planificación Estratégica</option><option>Módulo 3: Evaluación de Impacto</option></select>
+          </div>
+          <div class="fg"><label>Duración estimada</label><input type="text" placeholder="Ej: 45 min"/></div>
+        </div>
+        <div class="fg"><label>Descripción breve de la clase</label><textarea rows="3" placeholder="¿Qué aprenderán en esta clase?"></textarea></div>
+        <div class="fg"><label>Estado</label>
+          <div style="display:flex;gap:1rem;margin-top:.3rem">
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:400"><input type="radio" name="nc-status" value="published" checked style="accent-color:var(--green)"/> Publicada</label>
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:400"><input type="radio" name="nc-status" value="draft" style="accent-color:var(--amber)"/> Borrador</label>
+          </div>
+        </div>
+      </div>
+      <div class="crud-panel" id="nc-video">
+        <div class="fg">
+          <label>Tipo de contenido</label>
+          <div style="display:flex;gap:1rem;margin-top:.3rem;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:400;cursor:pointer"><input type="radio" name="nc-type" value="youtube" checked style="accent-color:var(--red)" onchange="toggleVideoInput(this)"/> Enlace YouTube</label>
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:400;cursor:pointer"><input type="radio" name="nc-type" value="upload" style="accent-color:var(--blue)" onchange="toggleVideoInput(this)"/> Subir video</label>
+          </div>
+        </div>
+        <div id="nc-youtube-input">
+          <div class="fg"><label>URL de YouTube</label><input type="url" placeholder="https://www.youtube.com/watch?v=..." id="nc-yt-url"/></div>
+          <div id="nc-yt-preview" style="display:none;margin-top:.5rem">
+            <div style="background:var(--navy);border-radius:10px;height:180px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden">
+              <iframe id="nc-yt-iframe" width="100%" height="100%" style="border:none;border-radius:10px" allowfullscreen></iframe>
+            </div>
+          </div>
+          <div style="margin-top:.75rem">
+            <button class="btn-ghost" style="font-size:.78rem" onclick="previewYoutube()">Cargar preview</button>
+          </div>
+        </div>
+        <div id="nc-upload-input" style="display:none">
+          <div class="fg"><label>Subir archivo de video</label>
+            <div class="img-upload-area" style="height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center" onclick="document.getElementById('nc-video-file').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:28px;height:28px;color:var(--muted)"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              <p style="margin-top:.4rem;font-size:.8rem;color:var(--muted)">Clic para subir video<br/><strong style="color:var(--red)">MP4, MOV, AVI — máx. 2 GB</strong></p>
+            </div>
+            <input type="file" id="nc-video-file" accept="video/*" style="display:none"/>
+          </div>
+        </div>
+      </div>
+      <div class="crud-panel" id="nc-mat">
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem">Agrega archivos descargables que acompañen esta clase (PDFs, plantillas, etc.)</p>
+        <div id="nc-mat-list" style="display:flex;flex-direction:column;gap:.45rem;margin-bottom:.75rem"></div>
+        <div class="img-upload-area" style="height:80px;display:flex;align-items:center;justify-content:center;gap:.75rem" onclick="document.getElementById('nc-mat-file').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;color:var(--muted)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span style="font-size:.82rem;color:var(--muted)">Subir archivo <strong style="color:var(--red)">PDF, DOCX, XLSX, PPTX…</strong></span>
+        </div>
+        <input type="file" id="nc-mat-file" multiple style="display:none" onchange="handleMatFiles(this)"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newClaseModal')">Cancelar</button>
+      <button class="btn-red" onclick="saveClase()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar clase
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVO MÓDULO -->
+<div class="modal-overlay" id="newModuloModal">
+  <div class="modal-box" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('newModuloModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header"><h2>Nuevo Módulo</h2><p>Agrega un módulo al curso seleccionado</p></div>
+    <div class="modal-body">
+      <div class="fg"><label>Curso *</label>
+        <select><option>Gestión de Destinos Turísticos Sostenibles</option><option>Marketing Gastronómico y Turismo Culinario</option><option>Digitalización en la Industria del Turismo</option></select>
+      </div>
+      <div class="fg"><label>Nombre del módulo *</label><input type="text" placeholder="Ej: Módulo 4: Casos de éxito internacionales"/></div>
+      <div class="fg"><label>Descripción del módulo</label><textarea rows="3" placeholder="¿Qué cubrirá este módulo?"></textarea></div>
+      <div class="fg"><label>Orden / Posición</label><input type="number" placeholder="4" min="1"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newModuloModal')">Cancelar</button>
+      <button class="btn-red" onclick="closeModal('newModuloModal');showToast('Módulo creado correctamente ✓','green')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Crear módulo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR MÓDULO -->
+<div class="modal-overlay" id="editModuloModal">
+  <div class="modal-box" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('editModuloModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header"><h2>Editar Módulo</h2><p>Módulo 1: Conceptos Fundamentales</p></div>
+    <div class="modal-body">
+      <div class="fg"><label>Nombre del módulo *</label><input type="text" value="Módulo 1: Conceptos Fundamentales"/></div>
+      <div class="fg"><label>Descripción del módulo</label><textarea rows="3">Introducción a los conceptos clave de gestión de destinos turísticos con enfoque sostenible.</textarea></div>
+      <div class="fg"><label>Orden / Posición</label><input type="number" value="1" min="1"/></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('editModuloModal')">Cancelar</button>
+      <button class="btn-red" onclick="closeModal('editModuloModal');showToast('Módulo actualizado ✓','green')">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR CLASE -->
+<div class="modal-overlay" id="editClaseModal">
+  <div class="modal-box" style="max-width:640px">
+    <button class="modal-close" onclick="closeModal('editClaseModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header"><h2>Editar Clase</h2><p id="editClaseTitleSub"></p></div>
+    <div class="modal-body">
+      <div class="crud-tabs">
+        <button class="crud-tab active" onclick="switchCrudTab('ec-info',this)">Información</button>
+        <button class="crud-tab" onclick="switchCrudTab('ec-video',this)">Video / Contenido</button>
+        <button class="crud-tab" onclick="switchCrudTab('ec-mat',this)">Materiales</button>
+      </div>
+      <div class="crud-panel active" id="ec-info">
+        <div class="fg"><label>Título de la clase *</label><input type="text" id="ec-title"/></div>
+        <div class="form-row-2">
+          <div class="fg"><label>Módulo</label><select id="ec-modulo"><option>Módulo 1: Conceptos Fundamentales</option><option>Módulo 2: Planificación Estratégica</option></select></div>
+          <div class="fg"><label>Duración estimada</label><input type="text" id="ec-dur"/></div>
+        </div>
+        <div class="fg"><label>Descripción breve</label><textarea id="ec-desc" rows="4"></textarea></div>
+        <div class="fg"><label>Estado</label>
+          <div style="display:flex;gap:1rem;margin-top:.3rem">
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:400"><input type="radio" name="ec-status" value="published" id="ec-pub" style="accent-color:var(--green)"/> Publicada</label>
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;font-weight:400"><input type="radio" name="ec-status" value="draft" id="ec-draft" style="accent-color:var(--amber)"/> Borrador</label>
+          </div>
+        </div>
+      </div>
+      <div class="crud-panel" id="ec-video">
+        <div class="fg"><label>Tipo de contenido</label>
+          <div style="display:flex;gap:1rem;margin-top:.3rem;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;cursor:pointer"><input type="radio" name="ec-type" value="youtube" style="accent-color:var(--red)"/> Enlace YouTube</label>
+            <label style="display:flex;align-items:center;gap:.4rem;font-size:.85rem;cursor:pointer"><input type="radio" name="ec-type" value="upload" style="accent-color:var(--blue)"/> Subir video</label>
+          </div>
+        </div>
+        <div class="fg"><label>URL de YouTube</label><input type="url" id="ec-yt-url" placeholder="https://www.youtube.com/watch?v=..."/></div>
+      </div>
+      <div class="crud-panel" id="ec-mat">
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem">Archivos descargables de esta clase.</p>
+        <div class="mat-item">
+          <div class="mat-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          <div class="mat-name">Guía OMT 2023.pdf</div>
+          <div class="mat-size">2.4 MB</div>
+          <button class="tbl-btn del" onclick="showToast('Material eliminado','red')">Eliminar</button>
+        </div>
+        <button class="add-mod-btn" style="margin-top:.5rem" onclick="document.getElementById('ec-mat-file').click()">+ Agregar material</button>
+        <input type="file" id="ec-mat-file" multiple style="display:none"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('editClaseModal')">Cancelar</button>
+      <button class="btn-red" onclick="closeModal('editClaseModal');showToast('Clase actualizada ✓','green')">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: PREVIEW CLASE -->
+<div class="modal-overlay" id="previewClaseModal">
+  <div class="modal-box modal-box--wide">
+    <button class="modal-close" onclick="closeModal('previewClaseModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div style="padding:1.5rem">
+      <span style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--red)">Vista previa del estudiante</span>
+      <h2 style="font-family:var(--font-disp);font-size:1.4rem;font-weight:700;color:var(--navy);margin:.3rem 0 1rem">Introducción a los destinos turísticos sostenibles</h2>
+      <div style="background:var(--navy);border-radius:12px;height:320px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:1rem">
+        <div style="text-align:center;color:rgba(255,255,255,.35)">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="width:48px;height:48px;margin-bottom:.5rem"><path d="M22.54 6.42a2.78 2.78 0 00-1.95-1.97C18.88 4 12 4 12 4s-6.88 0-8.59.45A2.78 2.78 0 001.46 6.42 29 29 0 001 12a29 29 0 00.46 5.58 2.78 2.78 0 001.95 1.97C5.12 20 12 20 12 20s6.88 0 8.59-.45a2.78 2.78 0 001.95-1.97A29 29 0 0023 12a29 29 0 00-.46-5.58z"/><polygon fill="#1A1A2E" points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+          <div style="font-size:.82rem">Preview del video de YouTube<br/>se mostrará aquí</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:1.25rem;flex-wrap:wrap">
+        <div>
+          <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Duración</div>
+          <div style="font-weight:600;font-size:.85rem;color:var(--navy)">45 min</div>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Módulo</div>
+          <div style="font-weight:600;font-size:.85rem;color:var(--navy)">Módulo 1</div>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">Estado</div>
+          <span class="badge green">Publicada</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: NUEVO MATERIAL -->
+<div class="modal-overlay" id="newMaterialModal">
+  <div class="modal-box" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('newMaterialModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header"><h2>Subir Material</h2><p>Agrega un archivo descargable al módulo</p></div>
+    <div class="modal-body">
+      <div class="fg"><label>Nombre del material *</label><input type="text" placeholder="Ej: Guía de indicadores OMT 2023"/></div>
+      <div class="fg"><label>Módulo donde aparecerá</label>
+        <select><option>Módulo 1: Conceptos Fundamentales</option><option>Módulo 2: Planificación Estratégica</option></select>
+      </div>
+      <div class="fg"><label>Archivo *</label>
+        <div class="img-upload-area" style="height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center" onclick="document.getElementById('nm-file').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;color:var(--muted)"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p style="margin-top:.35rem;font-size:.8rem;color:var(--muted)">PDF, DOCX, XLSX, PPTX — máx. 50 MB</p>
+        </div>
+        <input type="file" id="nm-file" style="display:none" onchange="showToast('Archivo cargado: '+this.files[0].name,'green')"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newMaterialModal')">Cancelar</button>
+      <button class="btn-red" onclick="closeModal('newMaterialModal');showToast('Material subido correctamente ✓','green')">Guardar material</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: NUEVO CERTIFICADO (plantilla)
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="newCertModal">
+  <div class="modal-box" style="max-width:620px">
+    <button class="modal-close" onclick="closeModal('newCertModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header"><h2>Nueva Plantilla de Certificado</h2><p>Define el diseño y datos del certificado</p></div>
+    <div class="modal-body">
+      <div class="cert-modal-preview" id="certLivePreview">
+        <div class="cmp-badge">DEC — COLITUR LIMA</div>
+        <div class="cmp-title" id="prev-cert-title">Certificado de Finalización</div>
+        <div class="cmp-sub">Se otorga el presente certificado a:</div>
+        <div class="cmp-student">Nombre del Estudiante</div>
+        <div class="cmp-course" id="prev-cert-course">Por haber completado satisfactoriamente el curso:<br/><strong>[Nombre del Curso]</strong></div>
+        <div class="cmp-footer">Lima, Perú · DEC COLITUR · www.colitur.pe</div>
+      </div>
+      <div class="crud-tabs" style="margin-top:.25rem">
+        <button class="crud-tab active" onclick="switchCrudTab('ncert-info',this)">Datos</button>
+        <button class="crud-tab" onclick="switchCrudTab('ncert-design',this)">Diseño</button>
+        <button class="crud-tab" onclick="switchCrudTab('ncert-asign',this)">Asignación</button>
+      </div>
+      <div class="crud-panel active" id="ncert-info">
+        <div class="fg"><label>Nombre de la plantilla *</label><input type="text" placeholder="Ej: Certificado de Finalización" oninput="document.getElementById('prev-cert-title').textContent=this.value||'Certificado de Finalización'"/></div>
+        <div class="fg"><label>Texto principal del certificado</label><textarea rows="2" placeholder="Por haber completado satisfactoriamente el curso..."></textarea></div>
+        <div class="form-row-2">
+          <div class="fg"><label>Firmante (Nombre)</label><input type="text" placeholder="Ej: Dr. Juan Rodríguez"/></div>
+          <div class="fg"><label>Cargo del firmante</label><input type="text" placeholder="Ej: Director Académico"/></div>
+        </div>
+        <div class="fg"><label>Institución / Sello</label><input type="text" value="Colegio de Licenciados en Turismo — COLITUR LIMA"/></div>
+      </div>
+      <div class="crud-panel" id="ncert-design">
+        <div class="form-row-2">
+          <div class="fg"><label>Color principal de fondo</label>
+            <select onchange="updateCertPreview(this.value)">
+              <option value="navy">Azul marino (predeterminado)</option>
+              <option value="green">Verde esmeralda</option>
+              <option value="burgundy">Borgoña</option>
+              <option value="gold">Dorado oscuro</option>
+            </select>
+          </div>
+          <div class="fg"><label>Estilo de borde</label>
+            <select><option>Clásico</option><option>Moderno sin borde</option><option>Doble línea</option></select>
+          </div>
+        </div>
+        <div class="fg"><label>Logo / Sello institucional</label>
+          <div class="img-upload-area" style="height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center" onclick="document.getElementById('cert-logo-file').click()">
+            <p style="font-size:.8rem;color:var(--muted)">Subir logo PNG transparente</p>
+          </div>
+          <input type="file" id="cert-logo-file" accept="image/*" style="display:none"/>
+        </div>
+        <div class="fg"><label>Firma digital (imagen)</label>
+          <div class="img-upload-area" style="height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center" onclick="document.getElementById('cert-firma-file').click()">
+            <p style="font-size:.8rem;color:var(--muted)">Subir imagen de firma PNG</p>
+          </div>
+          <input type="file" id="cert-firma-file" accept="image/*" style="display:none"/>
+        </div>
+      </div>
+      <div class="crud-panel" id="ncert-asign">
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:1rem">Selecciona a qué cursos aplicará esta plantilla automáticamente.</p>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          <label style="display:flex;align-items:center;gap:.65rem;padding:.6rem .85rem;background:var(--cream);border-radius:9px;border:1px solid var(--warm-grey);cursor:pointer;font-size:.85rem">
+            <input type="checkbox" checked style="accent-color:var(--red)"/> Gestión de Destinos Turísticos Sostenibles
+          </label>
+          <label style="display:flex;align-items:center;gap:.65rem;padding:.6rem .85rem;background:var(--cream);border-radius:9px;border:1px solid var(--warm-grey);cursor:pointer;font-size:.85rem">
+            <input type="checkbox" style="accent-color:var(--red)"/> Marketing Gastronómico y Turismo Culinario
+          </label>
+          <label style="display:flex;align-items:center;gap:.65rem;padding:.6rem .85rem;background:var(--cream);border-radius:9px;border:1px solid var(--warm-grey);cursor:pointer;font-size:.85rem">
+            <input type="checkbox" style="accent-color:var(--red)"/> Digitalización en la Industria del Turismo
+          </label>
+        </div>
+        <div class="fg" style="margin-top:1rem"><label>Condición de emisión automática</label>
+          <select><option>Al completar el 100% del curso</option><option>Al aprobar el examen final (nota ≥ 60)</option><option>Manual — solo el administrador emite</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newCertModal')">Cancelar</button>
+      <button class="btn-red" onclick="closeModal('newCertModal');showToast('Plantilla de certificado creada ✓','green')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar plantilla
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDITAR CERTIFICADO -->
+<div class="modal-overlay" id="editCertModal">
+  <div class="modal-box" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('editCertModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header"><h2>Editar Plantilla</h2><p>Certificado de Finalización</p></div>
+    <div class="modal-body">
+      <div class="fg"><label>Nombre de la plantilla *</label><input type="text" value="Certificado de Finalización"/></div>
+      <div class="fg"><label>Texto principal</label><textarea rows="2">Por haber completado satisfactoriamente el curso con dedicación y esfuerzo.</textarea></div>
+      <div class="form-row-2">
+        <div class="fg"><label>Firmante</label><input type="text" value="Dr. Juan Rodríguez"/></div>
+        <div class="fg"><label>Cargo</label><input type="text" value="Director Académico"/></div>
+      </div>
+      <div class="fg"><label>Condición de emisión</label>
+        <select><option>Al completar el 100% del curso</option><option>Al aprobar el examen final</option><option>Manual</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('editCertModal')">Cancelar</button>
+      <button class="btn-red" onclick="closeModal('editCertModal');showToast('Plantilla actualizada ✓','green')">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ENVÍO INDIVIDUAL CERTIFICADO -->
+<div class="modal-overlay" id="sendCertModal">
+  <div class="modal-box" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('sendCertModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header"><h2>Enviar Certificado</h2><p>Envía el certificado a un estudiante</p></div>
+    <div class="modal-body">
+      <div class="fg"><label>Plantilla de certificado *</label>
+        <select><option>Certificado de Finalización</option><option>Certificado con Distinción</option></select>
+      </div>
+      <div class="fg"><label>Estudiante *</label>
+        <select>
+          <option>María Pérez Quispe — COLITUR-04521</option>
+          <option>Ana Torres Rivera — COLITUR-04102</option>
+          <option>Carlos Quispe Lima — COLITUR-05891</option>
+          <option>Luis Ramos Huanca — COLITUR-03844</option>
+        </select>
+      </div>
+      <div class="fg"><label>Curso completado *</label>
+        <select><option>Digitalización en la Industria del Turismo</option><option>Gestión de Destinos Turísticos Sostenibles</option><option>Marketing Gastronómico</option></select>
+      </div>
+      <div class="fg"><label>Fecha de emisión</label><input type="date" value="2025-05-22"/></div>
+      <div class="fg"><label>Mensaje personalizado (opcional)</label><textarea rows="3" placeholder="Ej: Felicitaciones por completar el curso con distinción..."></textarea></div>
+      <div style="background:var(--green-bg);border:1px solid var(--green);border-radius:9px;padding:.75rem 1rem;font-size:.82rem;color:var(--green);display:flex;gap:.65rem;align-items:flex-start">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;margin-top:.1rem"><polyline points="20 6 9 17 4 12"/></svg>
+        El certificado se enviará al correo registrado del estudiante y quedará disponible en su dashboard.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('sendCertModal')">Cancelar</button>
+      <button class="btn-green" onclick="sendCertFromModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Enviar certificado
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: ENVÍO MASIVO -->
+
+<!-- MODAL: INSCRITOS (desde botón) -->
+<div class="modal-overlay" id="enrolledModal">
+  <div class="modal-box" style="max-width:700px">
+    <button class="modal-close" onclick="closeModal('enrolledModal')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header">
+      <h2>Lista de Inscritos</h2>
+      <p id="enrolledCursoLabel">Selecciona un curso para ver sus estudiantes</p>
+    </div>
+    <div class="modal-body">
+      <div class="fg" style="margin-bottom:1rem"><label>Curso</label>
+        <select id="enrolledCursoSelect" onchange="loadEnrolledStudents()">
+          <!-- JS -->
+        </select>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <span id="enrolledStatsLabel" style="font-size:.82rem;color:var(--muted)"></span>
+        <button class="btn-ghost" style="font-size:.78rem" onclick="exportEnrolledCSV()">Exportar CSV</button>
+      </div>
+      <div id="enrolledList" class="enrolled-list" style="max-height:400px;overflow-y:auto">
+        <!-- JS -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('enrolledModal')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: CREAR / EDITAR CLASE
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="claseCrudModal">
+  <div class="modal-box modal-box--crud">
+    <button class="modal-close" onclick="closeModal('claseCrudModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <h2 id="claseModalTitle">Nueva Clase</h2>
+      <p id="claseModalSub">Agrega una clase al módulo seleccionado.</p>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cl-curso-idx"/>
+      <input type="hidden" id="cl-mod-idx"/>
+      <input type="hidden" id="cl-clase-idx"/>
+      <input type="hidden" id="cl-orden" value="0"/>
+      <div class="fg"><label>Título de la clase *</label><input type="text" id="cl-titulo" placeholder="Ej: Introducción a la gestión sostenible"/></div>
+      <div class="form-row-2">
+        <div class="fg"><label>Módulo</label><select id="cl-modulo"><!-- JS --></select></div>
+        <div class="fg"><label>Duración estimada</label><input type="text" id="cl-duracion" placeholder="Ej: 12 min"/></div>
+      </div>
+      <div class="fg"><label>Descripción breve</label><textarea id="cl-desc" rows="4" placeholder="¿De qué trata esta clase?"></textarea></div>
+
+      <!-- Tipo de contenido -->
+      <div class="fg" style="margin-top:.5rem">
+        <label>Tipo de contenido</label>
+        <div class="tipo-content-tabs" style="display:flex;gap:.4rem;margin-top:.3rem">
+          <button class="tct active" data-tipo="video" onclick="switchContenidoTipo('video',this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Video
+          </button>
+          <button class="tct" data-tipo="quiz" onclick="switchContenidoTipo('quiz',this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Cuestionario
+          </button>
+          <button class="tct" data-tipo="trabajo" onclick="switchContenidoTipo('trabajo',this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Trabajo
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel: Video -->
+      <div class="ct-panel active" id="ct-video">
+        <div class="fg" style="margin-top:.5rem">
+          <label>Fuente del video</label>
+          <div class="vid-source-tabs">
+            <button class="vst active" onclick="switchVidTab('vt-yt',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Enlace YouTube
+            </button>
+            <button class="vst" onclick="switchVidTab('vt-file',this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Subir archivo
+            </button>
+          </div>
+          <!-- YouTube -->
+          <div class="vid-panel active" id="vt-yt">
+            <div class="fg">
+              <input type="url" id="cl-yt-url" placeholder="https://www.youtube.com/watch?v=... o https://youtu.be/..." oninput="previewYT(this.value)"/>
+            </div>
+            <div class="yt-preview-box" id="ytPreviewBox">
+              <img class="yt-thumb" id="ytThumb" src="" alt=""/>
+              <div class="yt-info">
+                <strong id="ytVideoId">—</strong>
+                <span>Vista previa del video de YouTube</span>
+              </div>
+            </div>
+            <p style="font-size:.75rem;color:var(--muted);margin-top:.4rem">Pega el enlace completo o el ID del video.</p>
+          </div>
+          <!-- Archivo -->
+          <div class="vid-panel" id="vt-file">
+            <div class="upload-drop" onclick="document.getElementById('cl-video-file').click()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <p>Arrastra tu video aquí o <strong>haz clic para subir</strong><br/>MP4, MOV, AVI · Máx. 2 GB</p>
+              <div id="clFileNameDisplay" style="margin-top:.5rem;font-size:.78rem;font-weight:600;color:var(--navy);display:none"></div>
+            </div>
+            <input type="file" id="cl-video-file" accept="video/*" style="display:none" onchange="handleVideoFile(this)"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Cuestionario -->
+      <div class="ct-panel" id="ct-quiz" style="display:none">
+        <div class="fg" style="margin-top:.5rem">
+          <label>Preguntas del cuestionario</label>
+          <p style="font-size:.75rem;color:var(--muted);margin-bottom:.75rem">Agrega preguntas con sus alternativas. Marca la opción correcta con el radio button.</p>
+          <div id="preguntas-container"></div>
+          <button type="button" class="btn-ghost" style="font-size:.78rem;margin-top:.5rem" onclick="addPregunta()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Añadir pregunta
+          </button>
+          <button type="button" class="btn-red" style="font-size:.78rem;margin-top:.5rem;margin-left:.5rem" id="btn-guardar-preguntas" onclick="guardarPreguntas()">
+            Guardar preguntas
+          </button>
+          <span id="preguntas-status" style="font-size:.75rem;color:var(--muted);margin-left:.5rem"></span>
+        </div>
+      </div>
+
+      <!-- Panel: Trabajo -->
+      <div class="ct-panel" id="ct-trabajo" style="display:none">
+        <div class="fg" style="margin-top:.5rem">
+          <label>Instrucciones para el trabajo</label>
+          <textarea id="cl-instrucciones" rows="4" placeholder="Describe qué debe hacer el estudiante, criterios de evaluación, formato de entrega, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="fg" style="margin-top:.75rem">
+        <label>Recursos adicionales (opcional)</label>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input type="file" id="cl-recurso-file" accept=".pdf,.pptx,.docx,.xlsx" style="display:none" onchange="handleRecursoFile(this)"/>
+          <button type="button" class="btn-ghost" style="font-size:.78rem" onclick="document.getElementById('cl-recurso-file').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+            Adjuntar PDF / PPT
+          </button>
+          <span id="cl-recurso-name" style="font-size:.77rem;color:var(--muted)">Sin archivo adjunto</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('claseCrudModal')">Cancelar</button>
+      <button class="btn-red" onclick="saveClase()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar clase
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: CREAR / EDITAR MÓDULO
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modCrudModal">
+  <div class="modal-box" style="max-width:480px">
+    <button class="modal-close" onclick="closeModal('modCrudModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header"><h2 id="modModalTitle">Nuevo Módulo</h2><p>Añade un módulo al curso seleccionado.</p></div>
+    <div class="modal-body">
+      <input type="hidden" id="mod-curso-idx"/>
+      <input type="hidden" id="mod-edit-idx"/>
+      <div class="fg"><label>Nombre del módulo *</label><input type="text" id="mod-nombre" placeholder="Ej: Módulo 1: Introducción"/></div>
+      <div class="fg"><label>Descripción</label><textarea id="mod-desc" rows="2" placeholder="Breve descripción del módulo..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modCrudModal')">Cancelar</button>
+      <button class="btn-red" onclick="saveModulo()">Guardar módulo</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: CREAR / EDITAR CERTIFICADO
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="certCrudModal">
+  <div class="modal-box modal-box--crud">
+    <button class="modal-close" onclick="closeModal('certCrudModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <h2 id="certModalTitle">Editar Certificado</h2>
+      <p id="certModalSub">Configura el certificado de finalización para un curso.</p>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="cert-edit-idx"/>
+      <!-- Curso: select (nuevo) / texto (editar) -->
+      <div id="cert-curso-new" class="fg"><label>Curso asociado *</label>
+        <select id="cert-curso"><!-- JS --></select>
+      </div>
+      <div id="cert-curso-edit" style="display:none;background:var(--cream);border:1px solid var(--warm-grey);border-radius:10px;padding:.75rem 1rem;margin-bottom:.9rem">
+        <div style="font-size:.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem">Curso</div>
+        <div id="cert-curso-nombre" style="font-size:.95rem;font-weight:600;color:var(--navy)"></div>
+      </div>
+      <!-- Firmantes -->
+      <div style="font-size:.82rem;font-weight:600;color:var(--navy);margin-bottom:.65rem">Firmantes del certificado</div>
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        <div style="background:var(--cream);border:1px solid var(--warm-grey);border-radius:10px;padding:.85rem 1rem">
+          <div style="font-size:.75rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Firma 1 — Decano</div>
+          <div class="form-row-2">
+            <div class="fg"><label>Nombre</label><input type="text" id="cert-firma1-nombre" placeholder="Ej: Lic. Oscar Gamarra Dominguez"/></div>
+            <div class="fg"><label>Cargo</label><input type="text" id="cert-firma1-cargo" placeholder="Ej: Decano"/></div>
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label>Imagen de firma</label>
+            <div style="display:flex;align-items:center;gap:.65rem;margin-top:.2rem">
+              <div id="cert-firma1-preview" style="width:60px;height:36px;border-radius:6px;border:1px solid var(--warm-grey);background:var(--white);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                <span style="font-size:.6rem;color:var(--muted)">Sin img</span>
+              </div>
+              <input type="file" id="cert-firma1-file" accept="image/*" style="display:none" onchange="uploadFirma(1, this)"/>
+              <button type="button" class="btn-ghost" style="font-size:.72rem;padding:.3rem .6rem" onclick="document.getElementById('cert-firma1-file').click()">Subir imagen</button>
+              <input type="hidden" id="cert-firma1-imagen"/>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--cream);border:1px solid var(--warm-grey);border-radius:10px;padding:.85rem 1rem">
+          <div style="font-size:.75rem;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Firma 2 — Vicedecano</div>
+          <div class="form-row-2">
+            <div class="fg"><label>Nombre</label><input type="text" id="cert-firma2-nombre" placeholder="Ej: Lic. Heber Olavarría Bustios"/></div>
+            <div class="fg"><label>Cargo</label><input type="text" id="cert-firma2-cargo" placeholder="Ej: Vicedecano"/></div>
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label>Imagen de firma</label>
+            <div style="display:flex;align-items:center;gap:.65rem;margin-top:.2rem">
+              <div id="cert-firma2-preview" style="width:60px;height:36px;border-radius:6px;border:1px solid var(--warm-grey);background:var(--white);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                <span style="font-size:.6rem;color:var(--muted)">Sin img</span>
+              </div>
+              <input type="file" id="cert-firma2-file" accept="image/*" style="display:none" onchange="uploadFirma(2, this)"/>
+              <button type="button" class="btn-ghost" style="font-size:.72rem;padding:.3rem .6rem" onclick="document.getElementById('cert-firma2-file').click()">Subir imagen</button>
+              <input type="hidden" id="cert-firma2-imagen"/>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--cream);border:1px solid var(--warm-grey);border-radius:10px;padding:.85rem 1rem">
+          <div style="font-size:.75rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Firma 3 — Directora Secretaria</div>
+          <div class="form-row-2">
+            <div class="fg"><label>Nombre</label><input type="text" id="cert-firma3-nombre" placeholder="Ej: Lic. Cleyde Flores Flores"/></div>
+            <div class="fg"><label>Cargo</label><input type="text" id="cert-firma3-cargo" placeholder="Ej: Directora Secretaria"/></div>
+          </div>
+          <div class="fg" style="margin-bottom:0">
+            <label>Imagen de firma</label>
+            <div style="display:flex;align-items:center;gap:.65rem;margin-top:.2rem">
+              <div id="cert-firma3-preview" style="width:60px;height:36px;border-radius:6px;border:1px solid var(--warm-grey);background:var(--white);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                <span style="font-size:.6rem;color:var(--muted)">Sin img</span>
+              </div>
+              <input type="file" id="cert-firma3-file" accept="image/*" style="display:none" onchange="uploadFirma(3, this)"/>
+              <button type="button" class="btn-ghost" style="font-size:.72rem;padding:.3rem .6rem" onclick="document.getElementById('cert-firma3-file').click()">Subir imagen</button>
+              <input type="hidden" id="cert-firma3-imagen"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('certCrudModal')">Cancelar</button>
+      <button id="certSaveBtn" class="btn-red" onclick="saveCert()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Actualizar certificado
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: VER DETALLE DEL CURSO (como index.html)
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="courseDetailModal">
+  <div class="modal-box modal-box--wide">
+    <button class="modal-close" onclick="closeModal('courseDetailModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="cm-hero" id="cdHero"></div>
+    <div class="cm-body">
+      <div class="cm-content">
+        <span class="course-cat" id="cdCat"></span>
+        <h2 class="cm-title" id="cdTitle"></h2>
+        <!-- Admin status strip -->
+        <div id="cdStatusStrip" style="display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem;flex-wrap:wrap"></div>
+        <div class="cm-tabs">
+          <button class="cm-tab active" onclick="switchCmTab('cdDesc',this)">Descripción</button>
+          <button class="cm-tab" onclick="switchCmTab('cdCurr',this)">Currículum</button>
+        </div>
+        <div class="cm-panel active" id="cdDesc">
+          <p id="cdDescText"></p>
+          <h4 class="cm-subtitle">¿Qué aprenderán?</h4>
+          <ul class="cm-learn-list" id="cdLearnList"></ul>
+          <p class="cm-extra" id="cdDescExtra"></p>
+        </div>
+        <div class="cm-panel" id="cdCurr">
+          <p id="cdCurrDesc"></p>
+          <h4 class="cm-subtitle">Contenido del programa</h4>
+          <div class="cm-modules" id="cdModules"></div>
+        </div>
+      </div>
+      <aside class="cm-sidebar">
+        <div class="cm-info-card">
+          <div class="cm-price" id="cdPrice"></div>
+          <ul class="cm-details" id="cdDetails"></ul>
+          <div style="background:var(--cream);border-radius:8px;padding:.7rem .85rem;margin-bottom:.85rem">
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:.3rem">Estadísticas</div>
+            <div style="display:flex;flex-direction:column;gap:.35rem" id="cdStats"></div>
+          </div>
+          <!-- Admin actions -->
+          <div class="cm-admin-actions">
+            <button class="btn-red cm-admin-actions" id="cdEditBtn" style="width:100%;justify-content:center;border-radius:9px;font-size:.82rem;padding:.6rem;gap:.35rem">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Editar curso
+            </button>
+          </div>
+          <div class="cm-admin-actions" style="margin-top:.5rem">
+            <button class="btn-ghost" id="cdToggleBtn" style="flex:1;justify-content:center;border-radius:9px;font-size:.78rem;padding:.5rem"></button>
+            <button class="btn-ghost" id="cdDelBtn" style="flex:1;justify-content:center;border-radius:9px;font-size:.78rem;padding:.5rem;color:var(--red);border-color:rgba(181,30,35,.3)">🗑 Eliminar</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: CREAR / EDITAR CURSO (CRUD)
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="crudModal">
+  <div class="modal-box modal-box--crud">
+    <button class="modal-close" onclick="closeModal('crudModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <h2 id="crudModalTitle">Nuevo Curso</h2>
+      <p id="crudModalSub">Completa la información para crear un nuevo curso en la plataforma.</p>
+    </div>
+    <div class="modal-body">
+      <!-- TABS CRUD -->
+      <div class="crud-tabs">
+        <button class="crud-tab active" onclick="switchCrudTab('ct-info',this)">Información general</button>
+        <button class="crud-tab" onclick="switchCrudTab('ct-content',this)">Contenido</button>
+        <button class="crud-tab" onclick="switchCrudTab('ct-media',this)">Imagen y estado</button>
+      </div>
+
+      <!-- TAB 1: INFO -->
+      <div class="crud-panel active" id="ct-info">
+        <div class="fg"><label>Título del curso *</label><input type="text" id="cf-title" placeholder="Ej: Gestión de Destinos Turísticos Sostenibles"/></div>
+        <div class="form-row-3">
+          <div class="fg"><label>Categoría *</label>
+            <select id="cf-cat">
+              <option>Gestión Turística</option>
+              <option>Gastronomía & Turismo</option>
+              <option>Tecnología</option>
+              <option>Hotelería</option>
+              <option>Guía de Turismo</option>
+            </select>
+          </div>
+          <div class="fg"><label>Precio (S/) *</label><input type="text" id="cf-price" placeholder="Ej: S/ 70"/></div>
+          <div class="fg"><label>Nivel</label>
+            <select id="cf-level"><option>Básico</option><option>Intermedio</option><option>Avanzado</option></select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="fg"><label>Instructor *</label><select id="cf-instructor"><option value="">Seleccionar docente...</option></select></div>
+          <div class="fg"><label>Duración</label><input type="text" id="cf-duration" placeholder="Ej: 3 semanas"/></div>
+        </div>
+        <div class="form-row-2">
+          <div class="fg"><label>N° de lecciones</label><input type="number" id="cf-lessons" placeholder="Ej: 11"/></div>
+          <div class="fg"><label>Certificación</label>
+            <select id="cf-cert"><option value="Sí">Sí — al completar</option><option value="No">No</option></select>
+          </div>
+        </div>
+        <div class="fg"><label>Descripción breve *</label><textarea id="cf-desc" rows="3" placeholder="2-3 oraciones que resuman el curso..."></textarea></div>
+        <div class="fg"><label>Descripción ampliada</label><textarea id="cf-descextra" rows="3" placeholder="Información adicional, beneficios, contexto..."></textarea></div>
+      </div>
+
+      <!-- TAB 2: CONTENIDO -->
+      <div class="crud-panel" id="ct-content">
+        <div class="fg" style="margin-bottom:1.1rem">
+          <label>¿Qué aprenderán los estudiantes?</label>
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.2rem;margin-bottom:.6rem">Lista de competencias o habilidades que se desarrollarán.</p>
+          <div class="learn-list-editor" id="learnEditor"></div>
+          <button class="add-mod-btn" onclick="addLearnItem()">+ Agregar item</button>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--warm-grey);margin:1rem 0"/>
+        <div class="fg">
+          <label>Descripción del currículum</label>
+          <textarea id="cf-currdesc" rows="2" placeholder="Breve descripción del programa..."></textarea>
+        </div>
+        <div class="fg" style="margin-bottom:1.1rem">
+          <label>Módulos del curso</label>
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.2rem;margin-bottom:.6rem">Nombre del módulo y número de sesiones.</p>
+          <div class="modules-editor" id="modulesEditor"></div>
+          <button class="add-mod-btn" onclick="addModuleRow()">+ Agregar módulo</button>
+        </div>
+      </div>
+
+      <!-- TAB 3: MEDIA & ESTADO -->
+      <div class="crud-panel" id="ct-media">
+        <div class="fg">
+          <label>Imagen de portada</label>
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.2rem;margin-bottom:.6rem">URL de imagen o sube un archivo (recomendado: 800×450 px).</p>
+          <div class="fg"><input type="url" id="cf-img" placeholder="https://..." oninput="previewImg(this.value)"/></div>
+          <div class="img-upload-area" id="imgPreviewArea" onclick="document.getElementById('cf-img-file').click()">
+            <img class="preview" id="imgPreview" src="" alt="Preview"/>
+            <div class="upload-placeholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p>Clic para subir imagen<br/><strong>o pega una URL arriba</strong></p>
+            </div>
+          </div>
+          <input type="file" id="cf-img-file" accept="image/*" style="display:none" onchange="handleImgFile(this)"/>
+        </div>
+        <div class="fg" style="margin-top:.5rem">
+          <label>Estado del curso</label>
+          <div style="display:flex;gap:.65rem;flex-wrap:wrap;margin-top:.3rem">
+            <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem;font-weight:400">
+              <input type="radio" name="cf-status" value="draft" id="cf-draft" style="accent-color:var(--amber)"/> Borrador
+            </label>
+            <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.85rem;font-weight:400">
+              <input type="radio" name="cf-status" value="published" id="cf-published" style="accent-color:var(--green)" checked/> Publicado
+            </label>
+          </div>
+        </div>
+        <div class="fg" style="margin-top:.5rem">
+          <label>Badge / etiqueta de portada</label>
+          <input type="text" id="cf-badge" placeholder="Ej: Nuevo, Destacado, Popular"/>
+        </div>
+
+        <div class="fg" style="margin-top:.5rem">
+          <label>Descripción del badge</label>
+          <input type="text" id="cf-badge-desc" placeholder="Describe el curso en 1-2 oraciones..."/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('crudModal')">Cancelar</button>
+      <button class="btn-red" id="crudSaveBtn" onclick="saveCourse()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar curso
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: NUEVA MATRÍCULA
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="newMatriculaModal">
+  <div class="modal-box" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('newMatriculaModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <h2>Nueva Matrícula</h2>
+      <p>Registra la matrícula de un usuario a un curso</p>
+    </div>
+    <div class="modal-body">
+      <div class="fg">
+        <label>Usuario *</label>
+        <select id="nm-user">
+          <option value="">Seleccionar usuario...</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Curso *</label>
+        <select id="nm-curso">
+          <option value="">Seleccionar curso...</option>
+        </select>
+      </div>
+      <div class="form-row-2">
+        <div class="fg"><label>Monto (S/)</label><input type="number" id="nm-monto" placeholder="0.00" step="0.01" min="0"/></div>
+        <div class="fg"><label>Fecha de matrícula</label><input type="date" id="nm-fecha"/></div>
+      </div>
+      <div class="form-row-2">
+        <div class="fg"><label>Medio de pago</label>
+          <select id="nm-pago">
+            <option value="">Seleccionar...</option>
+            <option value="Yape">Yape</option>
+            <option value="Plin">Plin</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Deposito">Depósito</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Estado del pago</label>
+        <select id="nm-estado">
+          <option value="Pendiente">Pendiente</option>
+          <option value="Pagado">Pagado</option>
+        </select>
+      </div>
+      <div style="background:var(--green-bg);border:1px solid var(--green);border-radius:9px;padding:.75rem 1rem;font-size:.82rem;color:var(--green);display:flex;gap:.65rem;align-items:flex-start;margin-top:.5rem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;margin-top:.1rem"><polyline points="20 6 9 17 4 12"/></svg>
+        La matrícula se registrará manualmente. El usuario quedará inscrito en el curso seleccionado.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newMatriculaModal')">Cancelar</button>
+      <button class="btn-red" onclick="saveMatricula()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Registrar matrícula
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: NUEVO USUARIO
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="newUserModal">
+  <div class="modal-box" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('newUserModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <h2>Nuevo Usuario</h2>
+      <p>Registra un nuevo usuario en la plataforma</p>
+    </div>
+    <div class="modal-body">
+      <div class="form-row-2">
+        <div class="fg"><label>Nombres *</label><input type="text" id="nu-nombres" placeholder="Ej: Juan"/></div>
+        <div class="fg"><label>Apellidos *</label><input type="text" id="nu-apellidos" placeholder="Ej: Pérez"/></div>
+      </div>
+      <div class="fg"><label>Correo electrónico *</label><input type="email" id="nu-email" placeholder="correo@ejemplo.com"/></div>
+      <div class="fg"><label>Contraseña *</label><input type="password" id="nu-password" placeholder="Mín. 6 caracteres"/></div>
+      <div class="form-row-2">
+        <div class="fg"><label>Teléfono</label><input type="text" id="nu-telefono" placeholder="999 888 777"/></div>
+        <div class="fg"><label>N° Colegiado</label><input type="text" id="nu-colegiado" placeholder="COLITUR-00000"/></div>
+      </div>
+      <div class="fg"><label>DNI / Carnet de Extranjería</label><input type="text" id="nu-dni" placeholder="Ej: 72481059"/></div>
+      <div class="fg"><label>Rol</label>
+        <select id="nu-rol">
+          <option value="usuario">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newUserModal')">Cancelar</button>
+      <button class="btn-red" onclick="crearUsuario()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Crear usuario
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: EDITAR USUARIO
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="editUserModal">
+  <div class="modal-box" style="max-width:520px">
+    <button class="modal-close" onclick="closeModal('editUserModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <h2>Editar Usuario</h2>
+      <p>Modifica los datos del usuario seleccionado</p>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="eu-id"/>
+      <div class="form-row-2">
+        <div class="fg"><label>Nombres *</label><input type="text" id="eu-nombres"/></div>
+        <div class="fg"><label>Apellidos *</label><input type="text" id="eu-apellidos"/></div>
+      </div>
+      <div class="fg"><label>Correo electrónico</label><input type="email" id="eu-email"/></div>
+      <div class="fg"><label>Nueva contraseña (dejar vacío para mantener)</label><input type="password" id="eu-password" placeholder="Solo si deseas cambiar la contraseña"/></div>
+      <div class="form-row-2">
+        <div class="fg"><label>Teléfono</label><input type="text" id="eu-telefono"/></div>
+        <div class="fg"><label>N° Colegiado</label><input type="text" id="eu-colegiado"/></div>
+      </div>
+      <div class="fg"><label>DNI / Carnet de Extranjería</label><input type="text" id="eu-dni" placeholder="Ej: 72481059"/></div>
+      <div class="fg"><label>Rol</label>
+        <select id="eu-rol">
+          <option value="usuario">Usuario</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('editUserModal')">Cancelar</button>
+      <button class="btn-red" onclick="saveUsuario()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: GESTIONAR PREGUNTAS (QUIZ)
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="preguntasModal">
+  <div class="modal-box modal-box--crud" style="max-width:780px">
+    <button class="modal-close" onclick="closeModal('preguntasModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <h2 id="pmTitle">Preguntas del Cuestionario</h2>
+      <p id="pmSub">Gestiona las preguntas y sus alternativas</p>
+    </div>
+    <div class="modal-body" style="max-height:65vh;overflow-y:auto">
+      <div id="pm-preguntas-list"></div>
+      <button type="button" class="btn-ghost" style="font-size:.78rem;margin-top:.75rem" onclick="pmAddPregunta()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Añadir pregunta
+      </button>
+    </div>
+    <div class="modal-footer">
+      <span id="pm-status" style="font-size:.75rem;color:var(--muted);margin-right:auto"></span>
+      <button class="btn-ghost" onclick="closeModal('preguntasModal')">Cerrar</button>
+      <button class="btn-red" onclick="pmSavePreguntas()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar preguntas
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: VER TRABAJO / CALIFICAR
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="trabajoDetailModal">
+  <div class="modal-box" style="max-width:720px">
+    <button class="modal-close" onclick="closeModal('trabajoDetailModal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem">
+        <div class="ai-avatar" id="tdAvatar" style="width:40px;height:40px;font-size:.85rem">--</div>
+        <div>
+          <h2 id="tdNombre" style="font-family:var(--font-disp);font-size:1.2rem;font-weight:700;color:var(--navy);margin:0">--</h2>
+          <p style="font-size:.78rem;color:var(--muted);margin:0" id="tdCurso">--</p>
+        </div>
+      </div>
+      <p style="font-size:.82rem;color:var(--muted);margin:0" id="tdModulo">--</p>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:1rem">
+        <span class="badge" id="tdBadge">--</span>
+        <span style="font-size:.75rem;color:var(--muted)" id="tdFecha">--</span>
+      </div>
+
+      <div id="tdViewer" style="margin-bottom:1rem;display:none">
+        <div style="background:var(--cream);border:1px solid var(--warm-grey);border-radius:10px;overflow:hidden">
+          <iframe id="tdFrame" style="width:100%;height:400px;border:none;display:none" src=""></iframe>
+          <img id="tdImage" style="width:100%;max-height:400px;object-fit:contain;display:none" src=""/>
+          <div id="tdNoPreview" style="display:none;padding:2rem;text-align:center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:40px;height:40px;color:var(--muted);margin:0 auto .75rem"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p style="font-size:.85rem;color:var(--muted);margin-bottom:.75rem">Este formato no se puede previsualizar</p>
+            <a id="tdDownloadBtn" href="#" target="_blank" class="btn-red" style="text-decoration:none">Descargar archivo</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:.65rem;margin-bottom:1.25rem">
+        <a id="tdDownloadLink" href="#" target="_blank" class="btn-ghost" style="text-decoration:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar archivo
+        </a>
+        <span style="font-size:.78rem;color:var(--muted);align-self:center" id="tdFileName">--</span>
+      </div>
+
+      <div style="border-top:1px solid var(--warm-grey);padding-top:1rem">
+        <h4 style="font-family:var(--font-disp);font-size:.95rem;font-weight:600;color:var(--navy);margin-bottom:.75rem">Calificación</h4>
+        <div id="tdGradeForm">
+          <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.75rem">
+            <input type="number" min="0" max="20" step="0.5" placeholder="Nota (0-20)" id="tdGradeInput" style="width:100px;padding:.55rem .75rem;border:1.5px solid var(--warm-grey);border-radius:8px;font-size:.9rem;font-weight:600;text-align:center;font-family:var(--font-body);outline:none;color:var(--navy)"/>
+            <span style="font-size:.85rem;color:var(--muted)">/ 20</span>
+          </div>
+          <textarea rows="3" placeholder="Retroalimentación para el estudiante..." id="tdFeedbackInput" style="width:100%;padding:.55rem .75rem;border:1.5px solid var(--warm-grey);border-radius:8px;font-size:.82rem;font-family:var(--font-body);outline:none;resize:none;color:var(--text);margin-bottom:.75rem"></textarea>
+          <button class="btn-red" onclick="calificarTrabajo()" id="tdGradeBtn">Calificar</button>
+        </div>
+        <div id="tdGradedInfo" style="display:none">
+          <div style="background:var(--green-bg);color:var(--green);padding:.55rem 1rem;border-radius:8px;font-size:.83rem;font-weight:600;margin-bottom:.5rem" id="tdGradedBadge">✓ Calificado</div>
+          <div style="font-size:.82rem;color:var(--muted)" id="tdGradedFeedback"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: CONFIRMAR ELIMINACIÓN
+════════════════════════════════════════════ -->
+<div class="modal-overlay confirm-modal" id="confirmModal">
+  <div class="modal-box" style="max-width:400px;padding:2rem;text-align:center">
+    <div class="confirm-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+    </div>
+    <h3 id="confirmTitle">¿Eliminar este curso?</h3>
+    <p id="confirmMsg">Esta acción no se puede deshacer. El curso y todos sus datos serán eliminados permanentemente.</p>
+    <div class="confirm-btns">
+      <button class="btn-ghost" onclick="closeModal('confirmModal')">Cancelar</button>
+      <button class="btn-red" id="confirmOkBtn">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: GENERAR CERTIFICADO A4
+════════════════════════════════════════════ -->
+<div class="modal-overlay cert-gen-modal" id="certGenModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('certGenModal')" style="z-index:20">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <!-- PANEL LATERAL: Formulario -->
+    <div class="cert-gen-sidebar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;padding-bottom:.6rem;border-bottom:2px solid var(--dorado)">
+        <h3 style="font-family:var(--font-disp);font-size:1.1rem;font-weight:700;color:var(--navy);margin:0">Generar Certificado</h3>
+        <div style="display:flex;align-items:center;gap:.25rem">
+          <button class="btn-ghost" onclick="certGenZoomOut()" title="Alejar" style="font-size:.82rem;width:26px;height:26px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:700">−</button>
+          <span id="certGenZoomLabel" style="font-size:.7rem;color:var(--muted);min-width:30px;text-align:center;font-weight:600">58%</span>
+          <button class="btn-ghost" onclick="certGenZoomIn()" title="Acercar" style="font-size:.82rem;width:26px;height:26px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:700">+</button>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Estudiante *</label>
+        <select id="cg-estudiante" onchange="onCertEstudianteChange()">
+          <option value="">Seleccionar estudiante...</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Curso *</label>
+        <select id="cg-curso" onchange="onCertCursoChange()">
+          <option value="">Seleccionar curso...</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>DNI / Documento</label>
+        <input type="text" id="cg-dni" placeholder="D.N.I. N° 00000000" oninput="onCertFieldChange()"/>
+        <div class="cert-dni-auto" id="cg-dni-hint">Se carga automáticamente del estudiante</div>
+      </div>
+      <div class="fg">
+        <label>Horas lectivas</label>
+        <input type="number" id="cg-horas" value="40" min="1" max="500" oninput="onCertFieldChange()"/>
+      </div>
+      <div class="fg">
+        <label>Fecha de emisión</label>
+        <input type="text" id="cg-fecha" oninput="onCertFieldChange()"/>
+      </div>
+      <div class="cert-gen-actions">
+        <button class="cert-gen-btn-print" onclick="registrarEmision()" style="background:var(--green)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>
+          Registrar
+        </button>
+        <button class="cert-gen-btn-cancel" onclick="closeModal('certGenModal')">Cerrar</button>
+      </div>
+    </div>
+    <!-- PANEL: Preview A4 -->
+    <div class="cert-gen-preview">
+      <div class="cert-print-zone" id="certPrintZone">
+        <section class="certificate-page" id="certGenPage">
+          <div class="cert-outer">
+            <div class="cert-inner">
+              <div class="cert-corner tl"></div>
+              <div class="cert-corner tr"></div>
+              <div class="cert-corner bl"></div>
+              <div class="cert-corner br"></div>
+              <header style="width:100%;display:flex;justify-content:center;margin-bottom:2px">
+                <div class="cert-hdr-logo"><img src="logo.png" alt="COLITUR DEC"/></div>
+              </header>
+              <h1 class="cert-inst-title">Colegio de Licenciados en Turismo de Lima</h1>
+              <p class="cert-inst-sub">Dirección de Estudios Continuos</p>
+              <p class="cert-grant">Otorga el presente</p>
+              <h2 class="cert-main-title">CERTIFICADO</h2>
+              <div>
+                <div class="cert-student-name" id="certD-nombre">Nombre del Estudiante</div>
+                <p class="cert-desc">
+                  Con documento de identidad <strong id="certD-dni">D.N.I. N° 00000000</strong>, por haber aprobado satisfactoriamente el curso de capacitación:
+                  <span class="cert-course-name" id="certD-curso">Nombre del Curso</span>
+                  Desarrollado por la Dirección de Estudios Continuos de COLITUR Lima, con una duración de <span class="cert-hours"><span id="certD-horas">40</span> horas lectivas</span>.
+                </p>
+              </div>
+              <p class="cert-fecha">Lima, <span id="certD-fecha">15 de Julio de 2026</span></p>
+              <footer class="cert-sigs">
+                <div class="cert-sig-row">
+                  <div class="cert-sig">
+                    <div class="cert-sig-img-wrap"><img src="firma1.png" alt="Firma Decano" id="certD-firma1-img"/></div>
+                    <div class="cert-sig-line"></div>
+                    <div class="cert-sig-name" id="certD-firma1-nombre">Lic. Oscar Gamarra Dominguez</div>
+                    <div class="cert-sig-role" id="certD-firma1-cargo">Decano<br>COLITUR Lima</div>
+                  </div>
+                  <div class="cert-sig">
+                    <div class="cert-sig-img-wrap"><img src="firma2.jpg" alt="Firma Vicedecano" id="certD-firma2-img"/></div>
+                    <div class="cert-sig-line"></div>
+                    <div class="cert-sig-name" id="certD-firma2-nombre">Lic. Heber Olavarría Bustios</div>
+                    <div class="cert-sig-role" id="certD-firma2-cargo">Vicedecano<br>COLITUR Lima</div>
+                  </div>
+                  <div class="cert-sig">
+                    <div class="cert-sig-img-wrap"><img src="firma3.jpg" alt="Firma Directora" id="certD-firma3-img"/></div>
+                    <div class="cert-sig-line"></div>
+                    <div class="cert-sig-name" id="certD-firma3-nombre">Lic. Cleyde Flores Flores</div>
+                    <div class="cert-sig-role" id="certD-firma3-cargo">Directora Secretaria<br>COLITUR Lima</div>
+                  </div>
+                </div>
+              </footer>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MODAL: PREVIEW CERTIFICADO A4
+════════════════════════════════════════════ -->
+<div class="modal-overlay cert-gen-modal" id="certPreviewModal">
+  <div class="modal-box" style="max-width:680px;height:92vh;display:flex;flex-direction:column;padding:0">
+    <div style="padding:.85rem 1.5rem;border-bottom:1px solid var(--warm-grey);display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:1rem">
+        <h3 style="font-family:var(--font-disp);font-size:1.1rem;font-weight:600;color:var(--navy)">Vista Previa del Certificado</h3>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <button class="btn-ghost" onclick="certZoomOut()" title="Alejar" style="font-size:.78rem;width:28px;height:28px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:700">−</button>
+        <span id="certZoomLabel" style="font-size:.72rem;color:var(--muted);min-width:32px;text-align:center;font-weight:600">56%</span>
+        <button class="btn-ghost" onclick="certZoomIn()" title="Acercar" style="font-size:.78rem;width:28px;height:28px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-weight:700">+</button>
+        <button class="btn-ghost" style="font-size:.78rem" onclick="showToast('Descargando PDF…','green')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar PDF
+        </button>
+        <button onclick="closeModal('certPreviewModal')" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--warm-grey);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:background var(--trans);margin-left:.25rem" onmouseover="this.style.background='var(--mid-grey)'" onmouseout="this.style.background='var(--warm-grey)'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:#ECEAE6">
+      <section class="cert-a4-page" id="certA4Preview" style="transform:scale(.56);transform-origin:center center;margin:-60px 0">
+        <div class="cert-a4-outer">
+          <div class="cert-a4-inner">
+            <div class="corner-deco top-left"></div>
+            <div class="corner-deco top-right"></div>
+            <div class="corner-deco bottom-left"></div>
+            <div class="corner-deco bottom-right"></div>
+            <header class="header-logo">
+              <div class="logo-container"><img src="logo.png" alt="Logo COLITUR DEC"/></div>
+            </header>
+            <h1 class="institution-title">Colegio de Licenciados en Turismo de Lima</h1>
+            <p class="institution-subtitle">Dirección de Estudios Continuos</p>
+            <p class="grant-text">Otorga el presente</p>
+            <h2 class="certificate-title">CERTIFICADO</h2>
+            <div>
+              <div class="student-name" id="pvCertNombre">Nombre del Estudiante</div>
+              <p class="course-description">
+                Con documento de identidad <strong id="pvCertDni">D.N.I. N° 00000000</strong>, por haber aprobado satisfactoriamente el curso de capacitación:
+                <span class="course-name" id="pvCertCurso">Nombre del Curso</span>
+                Desarrollado por la Dirección de Estudios Continuos de COLITUR Lima, con una duración de <span class="hours-badge"><span id="pvCertHoras">40</span> horas lectivas</span>.
+              </p>
+            </div>
+            <p style="font-size:11px;color:#2b2b2b;font-style:italic;margin-bottom:5px">Lima, <span id="pvCertFecha">15 de Julio de 2026</span></p>
+            <footer class="footer-section">
+              <div class="signature-container">
+                <div class="signature-block">
+                  <div class="signature-wrap"><img src="firma1.png" alt="Firma Decano" id="pvFirma1Img"/></div>
+                  <div class="signature-line-divider"></div>
+                  <div class="signature-name" id="pvFirma1Name">Lic. Oscar Gamarra Dominguez</div>
+                  <div class="signature-title" id="pvFirma1Cargo">Decano<br>COLITUR Lima</div>
+                </div>
+                <div class="signature-block">
+                  <div class="signature-wrap"><img src="firma2.jpg" alt="Firma Vicedecano" id="pvFirma2Img"/></div>
+                  <div class="signature-line-divider"></div>
+                  <div class="signature-name" id="pvFirma2Name">Lic. Heber Olavarría Bustios</div>
+                  <div class="signature-title" id="pvFirma2Cargo">Vicedecano<br>COLITUR Lima</div>
+                </div>
+                <div class="signature-block">
+                  <div class="signature-wrap"><img src="firma3.jpg" alt="Firma Directora" id="pvFirma3Img"/></div>
+                  <div class="signature-line-divider"></div>
+                  <div class="signature-name" id="pvFirma3Name">Lic. Cleyde Flores Flores</div>
+                  <div class="signature-title" id="pvFirma3Cargo">Directora Secretaria<br>COLITUR Lima</div>
+                </div>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg"></span>
+</div>
+
+<script src="admin.js?v=3"></script>
+<!-- admin.js maneja toda la lógica CRUD, datos de módulos/clases, y verificación de sesión -->
+</body>
+</html>

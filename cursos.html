@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Aula Virtual – DEC COLITUR</title>
+<link rel="icon" type="image/png" href="ICON.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#B51E23;--red-dark:#8f1519;--red-light:#d4464b;
+  --navy:#1A1A2E;--navy-mid:#252540;
+  --cream:#F7F5F2;--warm-grey:#EDEBE7;--mid-grey:#D8D6D2;
+  --text:#2C2C3A;--muted:#6B6B80;--white:#fff;
+  --green:#16a34a;--green-bg:#dcfce7;
+  --amber:#b45309;--amber-bg:#fef3c7;
+  --player-bg:#0d0d14;
+  --font-disp:'Cormorant Garamond',Georgia,serif;
+  --font-body:'DM Sans',system-ui,sans-serif;
+  --radius:10px;--shadow:0 4px 20px rgba(0,0,0,.08);--trans:.25s ease;
+  --topbar:56px;--sidebar-r:300px;
+}
+html,body{height:100%;font-family:var(--font-body);color:var(--text);background:var(--player-bg);line-height:1.55;overflow:hidden}
+img{max-width:100%;display:block}a{text-decoration:none;color:inherit}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:3px}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar);background:var(--navy);border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;z-index:500}
+.tb-left{display:flex;align-items:center;gap:.75rem}
+.back-btn{display:flex;align-items:center;gap:.4rem;color:rgba(255,255,255,.6);font-size:.82rem;font-weight:500;cursor:pointer;padding:.35rem .7rem;border-radius:6px;border:1px solid rgba(255,255,255,.12);transition:color var(--trans),border-color var(--trans);background:none}
+.back-btn:hover{color:var(--white);border-color:rgba(255,255,255,.3)}
+.back-btn svg{width:14px;height:14px}
+.tb-course-name{font-family:var(--font-disp);font-size:1rem;font-weight:600;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:420px}
+.tb-right{display:flex;align-items:center;gap:.9rem}
+.tb-progress-wrap{display:flex;align-items:center;gap:.7rem}
+.tb-progress-label{font-size:.75rem;color:rgba(255,255,255,.5)}
+.tb-progress-bar{width:120px;height:5px;background:rgba(255,255,255,.15);border-radius:50px;overflow:hidden}
+.tb-progress-fill{height:100%;background:var(--red);border-radius:50px;transition:width .6s ease}
+.tb-progress-pct{font-size:.78rem;font-weight:700;color:var(--white)}
+.tb-avatar{width:32px;height:32px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:var(--white);cursor:pointer}
+
+/* ── LAYOUT ── */
+.course-shell{display:flex;height:100vh;padding-top:var(--topbar)}
+
+/* ── SYLLABUS ── */
+.syllabus{width:280px;min-width:280px;background:#111120;overflow-y:auto;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column}
+.syl-header{padding:1rem 1.1rem .75rem;border-bottom:1px solid rgba(255,255,255,.06)}
+.syl-title{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+.syl-prog{display:flex;align-items:center;gap:.5rem;margin-top:.5rem}
+.syl-prog-bar{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:50px;overflow:hidden}
+.syl-prog-fill{height:100%;background:var(--red);border-radius:50px;transition:width .6s ease}
+.syl-prog-txt{font-size:.72rem;color:rgba(255,255,255,.4);white-space:nowrap}
+
+.module-group{border-bottom:1px solid rgba(255,255,255,.05)}
+.module-header{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.1rem;cursor:pointer;transition:background var(--trans)}
+.module-header:hover{background:rgba(255,255,255,.04)}
+.module-header.expanded{background:rgba(255,255,255,.03)}
+.module-header.mod-locked{cursor:not-allowed;opacity:.5}
+.module-header.mod-locked:hover{background:transparent}
+.mod-left{display:flex;align-items:center;gap:.6rem}
+.mod-ico{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.25);flex-shrink:0;transition:background .4s}
+.mod-ico.done{background:var(--green)}
+.mod-ico.active{background:var(--red)}
+.mod-name{font-size:.8rem;font-weight:500;color:rgba(255,255,255,.65);line-height:1.3}
+.mod-meta{font-size:.68rem;color:rgba(255,255,255,.3);margin-top:.15rem}
+.mod-arrow{color:rgba(255,255,255,.3);transition:transform var(--trans)}
+.mod-arrow svg{width:13px;height:13px}
+.module-header.expanded .mod-arrow{transform:rotate(180deg)}
+
+.lessons-list{display:none;padding-bottom:.3rem}
+.lessons-list.open{display:block}
+
+.lesson-item{display:flex;align-items:flex-start;gap:.65rem;padding:.55rem 1.1rem .55rem 1.6rem;cursor:pointer;transition:background var(--trans),opacity var(--trans);position:relative}
+.lesson-item:hover:not(.item-locked){background:rgba(255,255,255,.04)}
+.lesson-item.active{background:rgba(181,30,35,.15)}
+.lesson-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red)}
+.lesson-item.item-locked{opacity:.4;cursor:not-allowed;pointer-events:none}
+.lesson-ico{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.05rem}
+.lesson-ico svg{width:10px;height:10px}
+.lesson-ico.video{background:rgba(181,30,35,.2);color:var(--red-light)}
+.lesson-ico.quiz{background:rgba(180,83,9,.2);color:#f59e0b}
+.lesson-ico.work{background:rgba(22,163,74,.2);color:#4ade80}
+.lesson-ico.done-ico{background:rgba(22,163,74,.25);color:var(--green)}
+.lesson-info{flex:1;min-width:0}
+.lesson-name{font-size:.78rem;font-weight:400;color:rgba(255,255,255,.6);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lesson-item.active .lesson-name{color:var(--white);font-weight:500}
+.lesson-dur{font-size:.65rem;color:rgba(255,255,255,.28);margin-top:.1rem}
+.lesson-check{width:14px;height:14px;flex-shrink:0;margin-top:.15rem;color:var(--green)}
+.lesson-check svg{width:14px;height:14px}
+
+/* ── CENTER ── */
+.player-area{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--cream)}
+
+/* VIDEO VIEW */
+.video-view{display:flex;flex-direction:column;height:100%;overflow:hidden}
+.video-wrap{background:var(--player-bg);flex-shrink:0}
+.video-mock{width:100%;aspect-ratio:16/9;max-height:calc(100vh - var(--topbar) - 200px);background:linear-gradient(135deg,#0d0d20 0%,#1a1a2e 50%,#0d0d20 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;position:relative;overflow:hidden}
+.video-mock::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(181,30,35,.12) 0%,transparent 70%)}
+.play-big{width:72px;height:72px;border-radius:50%;background:rgba(181,30,35,.9);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform var(--trans),background var(--trans);box-shadow:0 0 40px rgba(181,30,35,.4)}
+.play-big:hover{transform:scale(1.08);background:var(--red)}
+.play-big svg{width:28px;height:28px;color:var(--white);margin-left:4px}
+.video-label{color:rgba(255,255,255,.55);font-size:.82rem;letter-spacing:.04em}
+.video-title-overlay{position:absolute;bottom:0;left:0;right:0;padding:.75rem 1rem;background:linear-gradient(transparent,rgba(0,0,0,.7));color:rgba(255,255,255,.8);font-size:.82rem;font-weight:500}
+
+.video-controls{background:#0a0a16;padding:.6rem 1.1rem;display:flex;align-items:center;gap:.85rem;border-top:1px solid rgba(255,255,255,.05)}
+.ctrl-btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.6);display:flex;align-items:center;transition:color var(--trans);padding:.2rem}
+.ctrl-btn:hover{color:var(--white)}
+.ctrl-btn svg{width:18px;height:18px}
+.seek-bar{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:50px;cursor:pointer;position:relative}
+.seek-fill{width:0%;height:100%;background:var(--red);border-radius:50px;position:relative;transition:width .2s linear}
+.seek-fill::after{content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:10px;height:10px;border-radius:50%;background:var(--white)}
+.vol-bar{width:70px;height:4px;background:rgba(255,255,255,.15);border-radius:50px;cursor:pointer}
+.vol-fill{width:65%;height:100%;background:rgba(255,255,255,.5);border-radius:50px}
+.time-label{font-size:.72rem;color:rgba(255,255,255,.45);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ctrl-btn.quality{font-size:.7rem;font-weight:600;color:rgba(255,255,255,.5);padding:.15rem .45rem;border:1px solid rgba(255,255,255,.2);border-radius:4px}
+.ctrl-btn.quality:hover{color:var(--white);border-color:rgba(255,255,255,.5)}
+
+/* LESSON INFO BELOW VIDEO */
+.lesson-info-panel{flex:1;overflow-y:auto;background:var(--cream);padding:1.25rem 1.5rem}
+.lesson-header-text h2{font-family:var(--font-disp);font-size:1.35rem;font-weight:600;color:var(--navy);margin-bottom:.35rem}
+.lesson-header-text p{font-size:.87rem;color:var(--muted);line-height:1.65}
+.lesson-nav-btns{display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap;align-items:center}
+
+/* QUIZ VIEW */
+.quiz-view{flex:1;overflow-y:auto;background:var(--cream);padding:1.5rem}
+/* WORK VIEW */
+.work-view{flex:1;overflow-y:auto;background:var(--cream);padding:1.5rem}
+/* LOCKED VIEW */
+.locked-view{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--cream);gap:1rem;padding:2rem;text-align:center}
+.locked-view .lock-icon{width:64px;height:64px;border-radius:50%;background:var(--warm-grey);display:flex;align-items:center;justify-content:center;margin-bottom:.5rem}
+.locked-view .lock-icon svg{width:28px;height:28px;color:var(--muted)}
+.locked-view h3{font-family:var(--font-disp);font-size:1.3rem;font-weight:600;color:var(--navy)}
+.locked-view p{font-size:.87rem;color:var(--muted);max-width:360px;line-height:1.65}
+
+/* QUIZ */
+.quiz-wrap{max-width:640px}
+.quiz-title{font-family:var(--font-disp);font-size:1.25rem;font-weight:600;color:var(--navy);margin-bottom:.3rem}
+.quiz-meta{font-size:.8rem;color:var(--muted);margin-bottom:1.25rem}
+.question{background:var(--white);border-radius:var(--radius);padding:1.1rem 1.2rem;margin-bottom:1rem;border:1px solid var(--warm-grey)}
+.q-text{font-size:.9rem;font-weight:600;color:var(--navy);margin-bottom:.85rem;line-height:1.45}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-option{display:flex;align-items:flex-start;gap:.75rem;padding:.65rem .85rem;border-radius:8px;cursor:pointer;border:1.5px solid var(--warm-grey);transition:border-color var(--trans),background var(--trans);font-size:.85rem;color:var(--text)}
+.q-option:hover{border-color:var(--navy);background:var(--cream)}
+.q-option.selected{border-color:var(--red);background:rgba(181,30,35,.06);color:var(--navy);font-weight:500}
+.q-option.correct{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.q-option.wrong{border-color:var(--red);background:rgba(181,30,35,.07);color:var(--red)}
+.q-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--mid-grey);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.1rem;transition:border-color var(--trans)}
+.q-option.selected .q-radio{border-color:var(--red);background:var(--red)}
+.q-option.correct .q-radio{border-color:var(--green);background:var(--green)}
+.q-radio::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--white);display:none}
+.q-option.selected .q-radio::after,.q-option.correct .q-radio::after{display:block}
+
+/* WORK */
+.work-wrap{max-width:640px}
+.work-card{background:var(--white);border-radius:var(--radius);padding:1.25rem;border:1px solid var(--warm-grey);margin-bottom:1rem}
+.work-card h3{font-family:var(--font-disp);font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:.5rem}
+.work-card p{font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:.85rem}
+.work-instructions{background:var(--cream);border-radius:8px;padding:.85rem 1rem;margin-bottom:1rem}
+.work-instructions li{font-size:.83rem;color:var(--text);margin-left:1rem;margin-bottom:.3rem;line-height:1.55}
+.file-drop{border:2px dashed var(--mid-grey);border-radius:var(--radius);padding:2rem 1rem;text-align:center;cursor:pointer;transition:border-color var(--trans),background var(--trans);background:var(--cream)}
+.file-drop:hover{border-color:var(--red);background:rgba(181,30,35,.03)}
+.file-drop svg{width:36px;height:36px;color:var(--muted);margin:0 auto .75rem}
+.file-drop p{font-size:.85rem;color:var(--muted)}
+.file-drop span{font-size:.75rem;color:var(--muted);display:block;margin-top:.25rem}
+.file-drop strong{color:var(--red)}
+.submitted-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--green-bg);color:var(--green);padding:.55rem 1rem;border-radius:8px;font-size:.83rem;font-weight:600;margin-bottom:.75rem}
+.submitted-badge svg{width:15px;height:15px}
+.grade-display{background:var(--white);border:1px solid var(--warm-grey);border-radius:var(--radius);padding:1rem 1.2rem;display:flex;align-items:center;gap:1rem}
+.grade-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:1.25rem;font-weight:700;color:var(--white)}
+.grade-circle.high{background:linear-gradient(135deg,var(--green),#4ade80)}
+.grade-circle.mid{background:linear-gradient(135deg,var(--amber),#f59e0b)}
+.grade-circle.low{background:linear-gradient(135deg,var(--red),var(--red-light))}
+.grade-feedback{font-size:.82rem;color:var(--muted);line-height:1.6;margin-top:.35rem}
+
+/* FILE INPUT */
+.file-selected-name{font-size:.82rem;color:var(--green);font-weight:600;margin-top:.5rem;min-height:1.2em}
+
+/* BUTTONS */
+.btn-red{display:inline-flex;align-items:center;gap:.4rem;background:var(--red);color:var(--white);border:none;border-radius:50px;padding:.55rem 1.25rem;font-family:var(--font-body);font-size:.83rem;font-weight:600;cursor:pointer;transition:background var(--trans),transform var(--trans)}
+.btn-red:hover:not(:disabled){background:var(--red-dark);transform:translateY(-1px)}
+.btn-red:disabled{background:var(--green) !important;cursor:default;transform:none !important;opacity:1}
+.btn-ghost{display:inline-flex;align-items:center;gap:.4rem;background:transparent;color:var(--muted);border:1.5px solid var(--mid-grey);border-radius:50px;padding:.52rem 1.1rem;font-family:var(--font-body);font-size:.83rem;font-weight:500;cursor:pointer;transition:border-color var(--trans),color var(--trans)}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+.btn-green{display:inline-flex;align-items:center;gap:.4rem;background:var(--green);color:var(--white);border:none;border-radius:50px;padding:.55rem 1.25rem;font-family:var(--font-body);font-size:.83rem;font-weight:600;cursor:pointer;transition:background var(--trans)}
+.btn-green:hover{background:#15803d}
+
+/* RIGHT SIDEBAR */
+.course-sidebar{width:var(--sidebar-r);min-width:var(--sidebar-r);background:var(--white);border-left:1px solid var(--warm-grey);overflow-y:auto;display:flex;flex-direction:column}
+.cs-section{padding:1.1rem 1.25rem;border-bottom:1px solid var(--warm-grey)}
+.cs-title{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.85rem}
+.overall-prog{display:flex;flex-direction:column;gap:.4rem}
+.op-row{display:flex;justify-content:space-between;font-size:.82rem}
+.op-val{font-weight:700;color:var(--navy)}
+.op-bar{height:6px;background:var(--warm-grey);border-radius:50px;overflow:hidden;margin-bottom:.2rem}
+.op-fill{height:100%;border-radius:50px;transition:width .8s ease}
+.op-fill.red{background:linear-gradient(90deg,var(--red),var(--red-light))}
+.op-fill.green{background:linear-gradient(90deg,var(--green),#4ade80)}
+.op-fill.amber{background:linear-gradient(90deg,var(--amber),#f59e0b)}
+.instructor-card{display:flex;align-items:center;gap:.85rem}
+.instr-avatar{width:46px;height:46px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:1.2rem;font-weight:600;color:var(--white);flex-shrink:0}
+.instr-name{font-size:.88rem;font-weight:600;color:var(--navy)}
+.instr-role{font-size:.75rem;color:var(--muted)}
+.instr-bio{font-size:.8rem;color:var(--muted);line-height:1.6;margin-top:.75rem}
+.info-list{display:flex;flex-direction:column;gap:.6rem}
+.info-item{display:flex;align-items:center;gap:.65rem;font-size:.82rem;color:var(--text)}
+.info-item svg{width:15px;height:15px;color:var(--red);flex-shrink:0}
+.info-item span{color:var(--muted)}
+.resource-item{display:flex;align-items:center;gap:.75rem;padding:.55rem 0;border-bottom:1px solid var(--warm-grey);cursor:pointer}
+.resource-item:last-child{border-bottom:none}
+.resource-item:hover .res-name{color:var(--red)}
+.res-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.res-icon svg{width:15px;height:15px}
+.res-icon.pdf{background:rgba(181,30,35,.1);color:var(--red)}
+.res-icon.link{background:rgba(26,26,46,.1);color:var(--navy)}
+.res-name{font-size:.82rem;font-weight:500;color:var(--text);transition:color var(--trans)}
+.res-size{font-size:.7rem;color:var(--muted)}
+
+/* NOTAS */
+.notes-panel{background:var(--white);border-radius:var(--radius);padding:1rem;border:1px solid var(--warm-grey);margin-top:1rem}
+.notes-panel h4{font-size:.78rem;font-weight:600;color:var(--navy);margin-bottom:.5rem}
+.notes-panel textarea{width:100%;min-height:90px;padding:.65rem;border:1.5px solid var(--warm-grey);border-radius:8px;font-family:var(--font-body);font-size:.82rem;color:var(--text);background:var(--cream);resize:vertical;outline:none;line-height:1.6}
+.notes-panel textarea:focus{border-color:var(--red)}
+
+/* ── MOBILE HAMBURGER ── */
+.syl-toggle{display:none;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:none;cursor:pointer;color:rgba(255,255,255,.7);transition:color var(--trans),border-color var(--trans)}
+.syl-toggle:hover{color:var(--white);border-color:rgba(255,255,255,.3)}
+.syl-toggle svg{width:18px;height:18px}
+.syl-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:299}
+
+@media(max-width:1100px){.course-sidebar{display:none}}
+@media(max-width:780px){
+  .syl-toggle{display:flex}
+  .syllabus{position:fixed;top:var(--topbar);left:0;bottom:0;z-index:300;transform:translateX(-100%);transition:transform .3s ease}
+  .syllabus.open{transform:translateX(0)}
+  .syl-overlay.open{display:block}
+  .ctrl-btn.quality{display:none}
+  .video-controls{gap:.5rem;padding:.5rem .75rem}
+  .vol-bar{display:none}
+  .time-label{font-size:.68rem}
+}
+@media(max-width:540px){
+  .tb-course-name{display:none}
+  .tb-progress-wrap{display:none}
+  .tb-right{gap:.5rem}
+  .video-controls{gap:.35rem;padding:.4rem .6rem;flex-wrap:wrap}
+  .ctrl-btn svg{width:16px;height:16px}
+  .seek-bar{min-width:100%;order:10;margin-top:.25rem}
+  .lesson-info-panel{padding:1rem}
+  .lesson-header-text h2{font-size:1.15rem}
+  .lesson-nav-btns{flex-direction:column;align-items:stretch}
+  .lesson-nav-btns .btn-ghost,.lesson-nav-btns .btn-red{text-align:center;justify-content:center}
+}
+@media(max-width:400px){
+  .back-btn span,.back-btn{font-size:.75rem}
+  .back-btn{padding:.3rem .5rem}
+}
+
+/* ==========================================================================
+   OPTIMIZACIÓN DEL ESPACIO EN PANTALLAS GRANDES (Dos Columnas de Preguntas)
+   ========================================================================== */
+
+/* 1. Quitamos el límite de ancho para que el cuestionario se expanda */
+.quiz-wrap, 
+.work-wrap {
+  max-width: 100% !important;
+  width: 100%;
+}
+
+/* 2. Convertimos el contenedor de opciones de cada pregunta en un Grid elástico */
+.quiz-card .q-options {
+  display: grid;
+  /* Crea 2 columnas si caben (mínimo 350px cada una), si no, se apilan en 1 */
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1rem; /* Espacio uniforme entre las tarjetas de opciones */
+  margin-top: 1.2rem;
+}
+
+/* 3. Limpiamos márgenes antiguos que puedan interferir con el Grid */
+.q-option {
+  margin-bottom: 0 !important; 
+  height: 100%; /* Hace que todas las opciones de la fila tengan la misma altura */
+  display: flex;
+  align-items: center;
+}
+
+/* ==========================================================================
+   RESPONSIVE: AJUSTE PARA PANTALLAS PEQUEÑAS (Celulares)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .quiz-card .q-options {
+    /* En pantallas menores a 768px rompe a una sola columna vertical */
+    grid-template-columns: 1fr; 
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-left">
+    <button class="syl-toggle" onclick="document.querySelector('.syllabus').classList.toggle('open');document.querySelector('.syl-overlay').classList.toggle('open')" title="Contenido del curso">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a href="dashboard.html" class="back-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Mis Cursos
+    </a>
+    <span class="tb-course-name" id="tbCourseName">Gestión de Destinos Turísticos Sostenibles</span>
+  </div>
+  <div class="tb-right">
+    <div class="tb-progress-wrap">
+      <span class="tb-progress-label">Tu avance</span>
+      <div class="tb-progress-bar"><div class="tb-progress-fill" id="tbFill"></div></div>
+      <span class="tb-progress-pct" id="tbPct">0%</span>
+    </div>
+    <div class="tb-avatar" id="tbAvatar">--</div>
+  </div>
+</div>
+
+<div class="course-shell">
+
+  <!-- SYLLABUS -->
+  <aside class="syllabus">
+    <div class="syl-header">
+      <div class="syl-title">Contenido del Curso</div>
+      <div class="syl-prog">
+        <div class="syl-prog-bar"><div class="syl-prog-fill" id="sylFill"></div></div>
+        <span class="syl-prog-txt" id="sylTxt">0/11 lecciones</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <div class="syl-overlay" onclick="document.querySelector('.syllabus').classList.remove('open');this.classList.remove('open')"></div>
+
+  <!-- CENTER -->
+  <div class="player-area" id="centerArea">
+
+    <!-- VIDEO VIEW -->
+    <div id="view-video" class="video-view" style="display:none">
+      <div class="video-wrap">
+        <div class="video-mock" id="videoMock">
+          <div class="play-big" onclick="togglePlay(this)" id="playBigBtn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+          <div class="video-label" id="videoLabel"></div>
+          <div class="video-title-overlay" id="videoOverlay"></div>
+        </div>
+        <div class="video-controls">
+          <button class="ctrl-btn" onclick="navigateLesson(-1)" title="Anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg></button>
+          <button class="ctrl-btn" id="playPauseBtn" onclick="togglePlayCtrl()" title="Play/Pausa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+          <button class="ctrl-btn" onclick="navigateLesson(1)" title="Siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg></button>
+          <div class="seek-bar"><div class="seek-fill" id="seekFill"></div></div>
+          <span class="time-label" id="timeLabel">00:00 / 00:00</span>
+          <button class="ctrl-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/></svg></button>
+          <div class="vol-bar"><div class="vol-fill"></div></div>
+          <button class="ctrl-btn quality">HD</button>
+          <button class="ctrl-btn" title="Pantalla completa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/></svg></button>
+        </div>
+      </div>
+      <!-- INFO + MARCAR BELOW VIDEO -->
+      <div class="lesson-info-panel">
+        <div class="lesson-header-text">
+          <h2 id="lessonTitle"></h2>
+          <p id="lessonDesc" style="margin-top:.35rem"></p>
+          <p id="lessonDesc2" style="margin-top:.5rem"></p>
+        </div>
+        <div class="lesson-nav-btns">
+          <button class="btn-ghost" onclick="navigateLesson(-1)">← Lección anterior</button>
+          <button class="btn-red" id="markDoneBtn" onclick="markVideoDone()">Marcar como completada →</button>
+        </div>
+        <div class="notes-panel">
+          <h4>Mis apuntes</h4>
+          <textarea id="notesArea" placeholder="Escribe aquí tus apuntes sobre esta lección..."></textarea>
+          <div style="margin-top:.5rem;display:flex;gap:.5rem">
+            <button class="btn-red" style="padding:.4rem 1rem;font-size:.78rem" onclick="alert('Notas guardadas ✓')">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUIZ VIEW -->
+    <div id="view-quiz" class="quiz-view" style="display:none">
+      <div class="quiz-wrap">
+        <div class="quiz-title" id="quizTitle"></div>
+        <div class="quiz-meta" id="quizMeta"></div>
+        <div id="quiz-questions"></div>
+
+        <div id="quiz-actions" style="display:flex;gap:.75rem;margin-top:.75rem">
+          <button class="btn-red" id="submitQuizBtn" onclick="submitQuiz()">Enviar respuestas</button>
+          <button class="btn-ghost" onclick="resetQuiz()">Reiniciar</button>
+        </div>
+        <div id="quiz-result" style="display:none;margin-top:1rem"></div>
+      </div>
+    </div>
+
+    <!-- WORK VIEW -->
+    <div id="view-work" class="work-view" style="display:none">
+      <div class="work-wrap">
+        <div class="work-card">
+          <h3 id="workTitle"></h3>
+          <p id="workDesc" style="white-space:pre-line"></p>
+          <div id="workInstructionsCard" class="work-instructions" style="display:none"></div>
+          <p style="font-size:.8rem;color:var(--muted)"><strong>Formato:</strong> PDF · <strong>Peso máx:</strong> 10 MB</p>
+        </div>
+
+        <!-- Upload card -->
+        <div class="work-card" id="uploadSection">
+          <h3>Subir tu trabajo</h3>
+          <div class="file-drop" id="fileDrop" onclick="document.getElementById('fileInput').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <p>Arrastra tu archivo aquí o <strong>haz clic para seleccionar</strong></p>
+            <span>PDF, DOCX · Máx 10 MB</span>
+          </div>
+          <input type="file" id="fileInput" accept=".pdf,.docx" style="display:none" onchange="handleFileSelect(this)"/>
+          <div class="file-selected-name" id="fileSelectedName"></div>
+          <div style="margin-top:.75rem;display:flex;gap:.75rem">
+            <button class="btn-red" id="submitWorkBtn" onclick="submitWork()" disabled style="opacity:.5;cursor:not-allowed">Enviar trabajo</button>
+          </div>
+        </div>
+
+        <!-- Submitted confirmation (hidden until sent) -->
+        <div class="work-card" id="workSentCard" style="display:none;border-top:3px solid var(--green)">
+          <div class="submitted-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Trabajo enviado correctamente</div>
+          <p style="font-size:.85rem;color:var(--muted)">Tu trabajo ha sido enviado para revisión. El instructor lo calificará pronto.</p>
+          <div id="studentFileViewer" style="display:none;margin-top:.75rem;background:var(--cream);border:1px solid var(--warm-grey);border-radius:10px;overflow:hidden">
+            <div style="padding:.5rem .85rem;background:var(--warm-grey);display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:.78rem;font-weight:600;color:var(--navy)" id="studentFileLabel">Tu archivo enviado</span>
+              <a id="studentDownloadLink2" href="#" target="_blank" class="btn-ghost" style="text-decoration:none;padding:.25rem .7rem;font-size:.72rem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Descargar
+              </a>
+            </div>
+            <iframe id="studentFrame" style="width:100%;height:450px;border:none;display:none"></iframe>
+            <div id="studentNoPreview" style="display:none;padding:2rem;text-align:center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:40px;height:40px;color:var(--muted);margin:0 auto .75rem"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <p style="font-size:.85rem;color:var(--muted);margin-bottom:.5rem">Archivo enviado: <strong id="studentFileName">--</strong></p>
+              <a id="studentDownloadBtn" href="#" target="_blank" class="btn-red" style="text-decoration:none;margin-top:.5rem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Descargar archivo
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Graded work (shown after teacher grades) -->
+        <div class="work-card" id="workGradedCard" style="display:none;border-top:3px solid var(--green)">
+          <h3>✓ Trabajo calificado</h3>
+          <div class="submitted-badge" id="gradedDate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Entregado</div>
+          <div class="grade-display">
+            <div class="grade-circle high" id="gradedCircle">0</div>
+            <div>
+              <div style="font-size:.88rem;font-weight:600;color:var(--navy)">Calificación: <span id="gradedNota">0/20</span></div>
+              <div class="grade-feedback" id="gradedFeedback">Sin retroalimentación.</div>
+            </div>
+          </div>
+          <div id="gradedFileViewer" style="display:none;margin-top:.75rem;background:var(--cream);border:1px solid var(--warm-grey);border-radius:10px;overflow:hidden">
+            <div style="padding:.5rem .85rem;background:var(--warm-grey);display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:.78rem;font-weight:600;color:var(--navy)" id="gradedFileLabel">Tu archivo enviado</span>
+              <a id="gradedDownloadLink2" href="#" target="_blank" class="btn-ghost" style="text-decoration:none;padding:.25rem .7rem;font-size:.72rem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Descargar
+              </a>
+            </div>
+            <iframe id="gradedFrame" style="width:100%;height:450px;border:none;display:none"></iframe>
+            <div id="gradedNoPreview" style="display:none;padding:2rem;text-align:center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:40px;height:40px;color:var(--muted);margin:0 auto .75rem"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <p style="font-size:.85rem;color:var(--muted);margin-bottom:.5rem">Archivo enviado: <strong id="gradedFileName">--</strong></p>
+              <a id="gradedDownloadBtn" href="#" target="_blank" class="btn-red" style="text-decoration:none;margin-top:.5rem">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Descargar archivo
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOCKED VIEW -->
+    <div id="view-locked" class="locked-view" style="display:none">
+      <div class="lock-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <h3>Contenido bloqueado</h3>
+      <p id="lockedMsg">Completa la lección anterior para desbloquear este contenido.</p>
+      <button class="btn-ghost" id="lockedGoBtn" onclick="goToFirstUnlocked()">Ir a la lección actual</button>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="course-sidebar">
+    <div class="cs-section">
+      <div class="cs-title">Progreso del Curso</div>
+      <div class="overall-prog">
+        <div><div class="op-row"><span>Videos</span><span class="op-val" id="progVids">0/8</span></div><div class="op-bar"><div class="op-fill red" id="progVidsBar" style="width:0%"></div></div></div>
+        <div><div class="op-row"><span>Quizzes</span><span class="op-val" id="progQuizzes">0/2</span></div><div class="op-bar"><div class="op-fill amber" id="progQuizzesBar" style="width:0%"></div></div></div>
+        <div><div class="op-row"><span>Trabajos</span><span class="op-val" id="progWorks">0/2</span></div><div class="op-bar"><div class="op-fill green" id="progWorksBar" style="width:0%"></div></div></div>
+        <div><div class="op-row"><span>General</span><span class="op-val" id="progPctLabel">0%</span></div></div>
+      </div>
+    </div>
+    <div class="cs-section">
+      <div class="cs-title">Instructor</div>
+      <div class="instructor-card">
+        <div class="instr-avatar" id="instrAvatar">--</div>
+        <div><div class="instr-name" id="instrName">Cargando...</div><div class="instr-role" id="instrRole"></div></div>
+      </div>
+      <div class="instr-bio" id="instrBio"></div>
+    </div>
+    <div class="cs-section">
+      <div class="cs-title">Detalles del Curso</div>
+      <div class="info-list">
+        <div class="info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div><strong>Duración:</strong> <span id="detDuracion">--</span></div></div>
+        <div class="info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg><div><strong>Lecciones:</strong> <span id="detLecciones">--</span></div></div>
+        <div class="info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><div><strong>Nivel:</strong> <span id="detNivel">--</span></div></div>
+        <div class="info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg><div><strong>Certificado:</strong> <span id="detCertificado">--</span></div></div>
+        <div class="info-item" id="matriculadosItem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><div><strong>Matriculados:</strong> <span id="detMatriculados">--</span></div></div>
+      </div>
+    </div>
+    <div class="cs-section">
+      <div class="cs-title">Materiales del Curso</div>
+      <div id="materialesContainer">
+        <div style="padding:0.5rem 0;color:var(--muted);font-size:0.82rem">Cargando materiales...</div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<script src="cursos.js"></script>
+</body>
+</html>

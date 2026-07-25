@@ -1,0 +1,7 @@
+{
+    "name": "dec-colitur/php-puro",
+    "description": "DEC COLITUR - Backend en PHP puro (sin framework)",
+    "require": {
+        "phpmailer/phpmailer": "^7.1"
+    }
+}

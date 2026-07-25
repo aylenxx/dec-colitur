@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mi Plataforma – DEC COLITUR</title>
+<link rel="icon" type="image/png" href="ICON.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=Montserrat:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#B51E23;--red-dark:#8f1519;--red-light:#d4464b;
+  --navy:#1A1A2E;--navy-mid:#252540;
+  --cream:#F7F5F2;--warm-grey:#EDEBE7;--mid-grey:#E2E0DC;
+  --text:#2C2C3A;--muted:#6B6B80;--white:#fff;
+  --green:#16a34a;--green-bg:#dcfce7;
+  --amber:#b45309;--amber-bg:#fef3c7;
+  --font-disp:'Cormorant Garamond',Georgia,serif;
+  --font-body:'DM Sans',system-ui,sans-serif;
+  --radius:12px;--shadow:0 4px 24px rgba(0,0,0,.08);
+  --shadow-lg:0 12px 48px rgba(0,0,0,.14);--trans:.3s ease;
+  --sidebar:260px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);color:var(--text);background:#F0EEE9;line-height:1.6;overflow-x:hidden}
+img{max-width:100%;display:block}a{text-decoration:none;color:inherit}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--red);border-radius:3px}
+::selection{background:var(--red);color:var(--white)}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar);position:fixed;top:0;left:0;bottom:0;
+  background:var(--navy);display:flex;flex-direction:column;z-index:300;
+  transition:transform var(--trans);
+}
+.sb-logo{padding:1.4rem 1.6rem;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:.7rem}
+.sb-close{display:none;background:none;border:none;color:rgba(255,255,255,.55);font-size:1.3rem;cursor:pointer;padding:.2rem;line-height:1;transition:color .2s}
+.sb-close:hover{color:var(--white)}
+.sb-logo img{mix-blend-mode:screen;filter:brightness(1.2)}
+.sb-logo-text{font-family:var(--font-disp);font-size:1rem;font-weight:600;color:var(--white);letter-spacing:.04em;line-height:1.1}
+.sb-logo-text small{display:block;font-size:.62rem;font-family:var(--font-body);font-weight:400;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase}
+
+.sb-user{display:flex;align-items:center;gap:.8rem;padding:1.1rem 1.6rem;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-avatar{width:38px;height:38px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.88rem;color:var(--white);flex-shrink:0}
+.sb-user-info strong{display:block;font-size:.83rem;color:var(--white);font-weight:600}
+.sb-user-info span{font-size:.68rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.06em}
+
+.sb-nav{flex:1;padding:.75rem 0;overflow-y:auto}
+.sb-label{font-size:.62rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.28);padding:.7rem 1.6rem .3rem}
+.sb-link{
+  display:flex;align-items:center;gap:.8rem;padding:.65rem 1.6rem;
+  color:rgba(255,255,255,.55);font-size:.86rem;font-weight:400;
+  border-left:3px solid transparent;cursor:pointer;
+  transition:color var(--trans),background var(--trans),border-color var(--trans);
+}
+.sb-link svg{width:17px;height:17px;flex-shrink:0}
+.sb-link:hover{color:var(--white);background:rgba(255,255,255,.05)}
+.sb-link.active{color:var(--white);background:rgba(181,30,35,.18);border-left-color:var(--red);font-weight:600}
+.sb-link.logout{color:rgba(255,120,120,.7)}
+.sb-link.logout:hover{color:#ff8080;background:rgba(255,0,0,.06)}
+
+.sb-footer{padding:1rem 1.6rem;border-top:1px solid rgba(255,255,255,.07)}
+
+/* ── NUEVO HEADER INTEGRADO (SIN TOPBAR FIJA) ── */
+.main {
+  margin-left: var(--sidebar);
+  flex: 1;
+  padding-top: 0; /* eliminamos el padding extra de la topbar */
+}
+.pg {
+  display: none;
+  padding: 1.75rem;
+}
+.pg.active {
+  display: block;
+}
+
+/* Cabecera flexible que contiene el saludo + íconos (campana y avatar) */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+/* Botón hamburguesa original (estilo intacto) */
+.hb {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3rem;
+}
+.hb span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--navy);
+  border-radius: 2px;
+}
+.header-welcome h2 {
+  font-family: var(--font-disp);
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 0.2rem;
+}
+.header-welcome p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+}
+/* Íconos de la derecha: usamos las mismas clases originales */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.tb-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cream);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  position: relative;
+  transition: background var(--trans);
+}
+.tb-icon-btn:hover {
+  background: var(--warm-grey);
+}
+.tb-icon-btn svg {
+  width: 17px;
+  height: 17px;
+}
+.notif-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  border: 2px solid var(--white);
+}
+
+/* ── RESPONSIVE: se muestra el botón hamburguesa y se ajusta el main ── */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:250}
+.sb-overlay.open{display:block}
+@media (max-width: 860px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .hb { display: flex; }
+  .profile-layout { grid-template-columns: 1fr; }
+  .sb-close { display: block; }
+}
+
+/* ── RESTO DE ESTILOS (STATS, CARDS, CURSOS, ETC) SE MANTIENEN SIN CAMBIOS ── */
+/* ── SECTION TITLE ── */
+.pg-head{margin-bottom:1.5rem;display:flex;align-items:center;gap:.5rem}
+.pg-head > div{flex:1}
+.pg-head .hb{flex-shrink:0}
+.pg-head h2{font-family:var(--font-disp);font-size:1.75rem;font-weight:600;color:var(--navy)}
+.pg-head p{color:var(--muted);font-size:.9rem;margin-top:.2rem}
+.pg-head-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;gap:.5rem}
+.pg-head-row .hb{flex-shrink:0}
+.pg-head-row h2{font-family:var(--font-disp);font-size:1.75rem;font-weight:600;color:var(--navy)}
+
+/* ── STATS ROW ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem;margin-bottom:1.75rem}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:1.35rem 1.4rem;box-shadow:var(--shadow);border:1px solid var(--warm-grey)}
+.sc-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:.75rem}
+.sc-icon svg{width:19px;height:19px}
+.sc-icon.red{background:rgba(181,30,35,.1);color:var(--red)}
+.sc-icon.green{background:var(--green-bg);color:var(--green)}
+.sc-icon.amber{background:var(--amber-bg);color:var(--amber)}
+.sc-icon.navy{background:rgba(26,26,46,.1);color:var(--navy)}
+.sc-val{font-family:var(--font-disp);font-size:2rem;font-weight:700;color:var(--navy);line-height:1}
+.sc-label{font-size:.78rem;color:var(--muted);margin-top:.25rem}
+.sc-sub{font-size:.72rem;color:var(--green);font-weight:500;margin-top:.15rem}
+.sc-sub.muted{color:var(--muted)}
+
+/* ── COURSE CARDS ── */
+.courses-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:2rem}
+.cc{background:var(--white);border-radius:var(--radius);overflow:hidden;border:1px solid var(--warm-grey);box-shadow:var(--shadow);cursor:pointer;transition:transform var(--trans),box-shadow var(--trans)}
+.cc:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.cc-thumb{height:135px;background-size:cover;background-position:center;position:relative;overflow:hidden;transition:transform .5s ease}
+.cc:hover .cc-thumb{transform:scale(1.04)}
+.cc-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(26,26,46,.65) 0%,transparent 55%)}
+.cc-badge{position:absolute;top:.65rem;left:.65rem;background:var(--red);color:var(--white);font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .55rem;border-radius:50px}
+.cc-badge.done{background:var(--green)}
+.cc-prog{position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.2)}
+.cc-prog-fill{height:100%;background:var(--red);transition:width .6s ease}
+.cc-prog-fill.done{background:var(--green)}
+.cc-body{padding:1rem 1.15rem 1.2rem}
+.cc-cat{font-size:.65rem;font-weight:700;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.25rem}
+.cc-title{font-family:var(--font-disp);font-size:1rem;font-weight:600;color:var(--navy);line-height:1.3;margin-bottom:.55rem}
+.cc-meta{display:flex;justify-content:space-between;align-items:center;font-size:.75rem;color:var(--muted)}
+.cc-pct{font-weight:700;color:var(--navy);font-size:.82rem}
+.cc-pct.done{color:var(--green)}
+.cc-btn{display:block;width:100%;margin-top:.75rem;background:var(--red);color:var(--white);border:none;border-radius:50px;padding:.5rem;font-family:var(--font-body);font-size:.8rem;font-weight:600;cursor:pointer;text-align:center;transition:background var(--trans),transform var(--trans)}
+.cc-btn:hover{background:var(--red-dark);transform:translateY(-1px)}
+.cc-btn.done{background:var(--green)}
+.cc-btn.done:hover{background:#15803d}
+
+/* ── TWO COL ── */
+.two-col{display:grid;grid-template-columns:1fr 300px;gap:1.25rem}
+
+/* ── CARDS ── */
+.card{background:var(--white);border-radius:var(--radius);padding:1.4rem;border:1px solid var(--warm-grey);box-shadow:var(--shadow)}
+.card-title{font-family:var(--font-disp);font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:1rem}
+
+/* ── ACTIVITY ── */
+.act-item{display:flex;align-items:flex-start;gap:.85rem;padding:.75rem 0;border-bottom:1px solid var(--warm-grey)}
+.act-item:last-child{border-bottom:none}
+.act-ico{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.act-ico svg{width:15px;height:15px}
+.act-ico.red{background:rgba(181,30,35,.1);color:var(--red)}
+.act-ico.green{background:var(--green-bg);color:var(--green)}
+.act-ico.navy{background:rgba(26,26,46,.1);color:var(--navy)}
+.act-ico.amber{background:var(--amber-bg);color:var(--amber)}
+.act-body{flex:1}
+.act-body strong{display:block;font-size:.83rem;font-weight:600;color:var(--text)}
+.act-body span{font-size:.75rem;color:var(--muted)}
+.act-time{font-size:.7rem;color:var(--muted);white-space:nowrap}
+
+/* ── STREAK ── */
+.streak-num{font-family:var(--font-disp);font-size:3.2rem;font-weight:700;color:var(--red);text-align:center;padding:.75rem 0 .3rem}
+.streak-label{text-align:center;font-size:.82rem;color:var(--muted);margin-bottom:1rem}
+.streak-days{display:flex;gap:.35rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.1rem}
+.sd{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:600;color:var(--white)}
+
+/* ── PROGRESS PAGE ── */
+.prog-list{display:flex;flex-direction:column;gap:1rem}
+.prog-card{background:var(--white);border-radius:var(--radius);padding:1.25rem 1.4rem;border:1px solid var(--warm-grey);box-shadow:var(--shadow)}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.prog-name{font-size:.9rem;font-weight:600;color:var(--navy)}
+.prog-pct{font-size:.85rem;font-weight:700;color:var(--red)}
+.prog-pct.done{color:var(--green)}
+.prog-bg{height:8px;background:var(--warm-grey);border-radius:50px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--red-light));border-radius:50px;transition:width .8s ease}
+.prog-fill.done{background:linear-gradient(90deg,var(--green),#4ade80)}
+.prog-info{display:flex;gap:1.25rem;margin-top:.55rem;font-size:.73rem;color:var(--muted);flex-wrap:wrap}
+.prog-info span{display:flex;align-items:center;gap:.3rem}
+
+/* ── CERTS ── */
+.certs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem}
+.cert-card{background:var(--white);border-radius:var(--radius);padding:1.5rem;border:1px solid var(--warm-grey);box-shadow:var(--shadow);position:relative;overflow:hidden;display:flex;flex-direction:column;gap:.9rem}
+.cert-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red),var(--red-light))}
+.cert-card.pending::before{background:var(--warm-grey)}
+.cert-ico{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center}
+.cert-ico svg{width:22px;height:22px}
+.cert-ico.earned{background:rgba(181,30,35,.09);color:var(--red)}
+.cert-ico.pend{background:var(--warm-grey);color:var(--muted)}
+.cert-title{font-family:var(--font-disp);font-size:1.15rem;font-weight:600;color:var(--navy)}
+.cert-meta{font-size:.8rem;color:var(--muted);line-height:1.6}
+.cert-dl{display:inline-flex;align-items:center;gap:.45rem;background:var(--navy);color:var(--white);padding:.45rem 1rem;border-radius:50px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;transition:background var(--trans);align-self:flex-start}
+.cert-dl:hover{background:var(--red)}
+.cert-dl svg{width:13px;height:13px}
+.cert-pend-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--warm-grey);color:var(--muted);padding:.4rem .9rem;border-radius:50px;font-size:.78rem;font-weight:500;align-self:flex-start}
+
+/* ── PROFILE ── */
+.profile-layout{display:grid;grid-template-columns:270px 1fr;gap:1.5rem}
+.profile-card{background:var(--white);border-radius:var(--radius);padding:1.75rem 1.4rem;text-align:center;border:1px solid var(--warm-grey);box-shadow:var(--shadow)}
+.p-avatar{width:84px;height:84px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--font-disp);font-size:2rem;font-weight:700;color:var(--white);margin:0 auto 1rem;border:4px solid var(--cream);box-shadow:0 0 0 3px var(--red)}
+.p-name{font-family:var(--font-disp);font-size:1.35rem;font-weight:600;color:var(--navy)}
+.p-role{font-size:.75rem;color:var(--muted);margin-top:.2rem;letter-spacing:.06em;text-transform:uppercase}
+.p-chips{display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;margin:1rem 0}
+.chip{background:var(--cream);border:1px solid var(--mid-grey);font-size:.68rem;font-weight:600;color:var(--navy);padding:.2rem .6rem;border-radius:50px}
+.chip.active{background:rgba(181,30,35,.08);border-color:rgba(181,30,35,.3);color:var(--red)}
+.p-mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;border-top:1px solid var(--warm-grey);padding-top:1rem;margin-top:.5rem}
+.pms{text-align:center}
+.pms-val{font-family:var(--font-disp);font-size:1.5rem;font-weight:700;color:var(--navy)}
+.pms-label{font-size:.7rem;color:var(--muted)}
+
+.form-card{background:var(--white);border-radius:var(--radius);padding:1.5rem;border:1px solid var(--warm-grey);box-shadow:var(--shadow);margin-bottom:1.1rem}
+.form-card h3{font-family:var(--font-disp);font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:1rem;padding-bottom:.7rem;border-bottom:1px solid var(--warm-grey)}
+.fg{display:flex;flex-direction:column;gap:.32rem;margin-bottom:.9rem}
+.fg label{font-size:.78rem;font-weight:600;color:var(--navy);letter-spacing:.03em}
+.fg input,.fg select{padding:.65rem .9rem;border:1.5px solid var(--warm-grey);border-radius:9px;font-family:var(--font-body);font-size:.87rem;color:var(--text);background:var(--cream);outline:none;transition:border-color var(--trans),box-shadow var(--trans);width:100%}
+.fg input:focus,.fg select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(181,30,35,.1);background:var(--white)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+.btn-red{display:inline-flex;align-items:center;gap:.4rem;background:var(--red);color:var(--white);border:none;border-radius:50px;padding:.58rem 1.4rem;font-family:var(--font-body);font-size:.84rem;font-weight:600;cursor:pointer;transition:background var(--trans),transform var(--trans)}
+.btn-red:hover{background:var(--red-dark);transform:translateY(-1px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:.4rem;background:transparent;color:var(--muted);border:1.5px solid var(--mid-grey);border-radius:50px;padding:.55rem 1.2rem;font-family:var(--font-body);font-size:.84rem;font-weight:500;cursor:pointer;transition:border-color var(--trans),color var(--trans)}
+.btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+
+@media(max-width:1150px){.stats-row{grid-template-columns:repeat(2,1fr)}.courses-grid{grid-template-columns:repeat(2,1fr)}.two-col{grid-template-columns:1fr}.certs-grid{grid-template-columns:1fr}}
+@media(max-width:860px){
+  .header-welcome p{font-size:.82rem}
+}
+@media(max-width:560px){
+  .courses-grid{grid-template-columns:1fr}
+  .pg{padding:1rem}
+  .form-row-2{grid-template-columns:1fr}
+  .stats-row{gap:.75rem}
+  .stat-card{padding:1rem}
+  .sc-val{font-size:1.6rem}
+  .cc-thumb{height:110px}
+  .cc-body{padding:.85rem 1rem 1rem}
+  .certs-grid{gap:.85rem}
+  .cert-card{padding:1.25rem}
+  .two-col .card{padding:1.1rem}
+  .dashboard-header{margin-bottom:1rem}
+  .p-avatar{width:68px;height:68px;font-size:1.6rem}
+  .p-name{font-size:1.15rem}
+  .p-mini-stats{gap:.5rem}
+  .pms-val{font-size:1.3rem}
+}
+
+/* ── CERT A4 TEMPLATE (for PDF download) ── */
+.cert-print-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:99998;align-items:center;justify-content:center}
+.cert-print-overlay.visible{display:flex}
+.cert-a4-page{width:297mm;height:210mm;background-color:#fff;padding:14mm 16mm;position:relative;display:flex;justify-content:center;align-items:center;background-image:radial-gradient(rgba(14,56,84,.02) 2px,transparent 2px);background-size:30px 30px;font-family:'Montserrat',sans-serif;flex-shrink:0}
+.cert-a4-outer{border:8px double #0e3854;width:100%;height:100%;padding:10px;position:relative}
+.cert-a4-inner{border:2px solid #c5a059;width:100%;height:100%;padding:25px 40px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;position:relative}
+.corner-deco{position:absolute;width:25px;height:25px;border:4px solid #c5a059}
+.corner-deco.top-left{top:15px;left:15px;border-right:none;border-bottom:none}
+.corner-deco.top-right{top:15px;right:15px;border-left:none;border-bottom:none}
+.corner-deco.bottom-left{bottom:15px;left:15px;border-right:none;border-top:none}
+.corner-deco.bottom-right{bottom:15px;right:15px;border-left:none;border-top:none}
+.dash-cert-header-logo{width:100%;display:flex;justify-content:center;margin-bottom:2px}
+.dash-cert-logo-box{background-color:#0e3854;padding:10px 35px;border-radius:4px;display:flex;justify-content:center;align-items:center;height:68px;box-shadow:0 4px 10px rgba(0,0,0,.1)}
+.dash-cert-logo-box img{height:100%;width:auto;object-fit:contain}
+.dash-cert-inst-title{font-family:'Cinzel',serif;color:#0e3854;font-size:19px;font-weight:700;letter-spacing:2px;margin-top:8px}
+.dash-cert-inst-sub{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:4px;font-weight:600;margin-top:3px}
+.dash-cert-grant{font-family:'Playfair Display',serif;font-style:italic;font-size:15px;color:#666;margin-top:8px}
+.dash-cert-title{font-family:'Cinzel',serif;font-size:34px;color:#0e3854;letter-spacing:8px;font-weight:700;margin:4px 0;position:relative}
+.dash-cert-title::after{content:'';display:block;width:80px;height:2px;background-color:#c5a059;margin:6px auto 0 auto}
+.dash-cert-student{font-size:26px;font-weight:700;color:#0e3854;border-bottom:1px solid #e0e0e0;padding-bottom:4px;min-width:60%;display:inline-block;margin:4px 0}
+.dash-cert-desc{font-size:12.5px;color:#2b2b2b;line-height:1.5;max-width:85%;margin:4px auto}
+.dash-cert-course{font-size:19px;font-weight:700;color:#0e3854;display:block;margin:6px 0;letter-spacing:.5px}
+.dash-cert-hours{font-weight:600;color:#c5a059}
+.dash-cert-footer{width:100%;display:flex;justify-content:center;align-items:flex-end;margin-top:15px;padding:0 5px}
+.dash-cert-sigs{display:flex;gap:40px;justify-content:center;width:100%}
+.dash-cert-sig{width:170px;text-align:center;display:flex;flex-direction:column;justify-content:flex-end}
+.dash-cert-sig-img{height:65px;position:relative;display:flex;justify-content:center;align-items:flex-end}
+.dash-cert-sig-img img{max-height:55px;max-width:150px;object-fit:contain;position:absolute;bottom:3px;z-index:1}
+.dash-cert-sig-line{width:100%;height:1px;background-color:#b5b5b5;margin:5px 0;z-index:2;position:relative}
+.dash-cert-sig-name{font-size:9px;font-weight:700;color:#2b2b2b;text-transform:uppercase;margin-top:2px}
+.dash-cert-sig-role{font-size:8.5px;color:#666;margin-top:2px;line-height:1.2}
+
+@media print {
+  body * { visibility: hidden !important; }
+  .cert-print-overlay, .cert-print-overlay * { visibility: visible !important; }
+  .cert-print-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 99999; display: flex !important; align-items: center; justify-content: center; }
+  .cert-a4-page { box-shadow: none !important; margin: 0; }
+  @page { size: A4 landscape; margin: 0; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── SIDEBAR (SIN CAMBIOS) ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo" style="justify-content:space-between">
+    <img src="logoC.png" alt="DEC"/>
+    <button class="sb-close" onclick="document.getElementById('sidebar').classList.remove('open');document.getElementById('sbOverlay').classList.remove('open')" aria-label="Cerrar menú">✕</button>
+  </div>
+<div class="sb-user">
+<div class="sb-avatar" id="sbAvatar">MP> </div><!-- Avatar con iniciales -->
+<div class="sb-user-info"><strong id="sbNombre">María Pérez</strong><span id="sbRol">Estudiante</span></div> <!-- Nombre y rol --> 
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-label">Principal</div>
+    <a class="sb-link active" data-page="inicio" onclick="nav('inicio')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Inicio
+    </a>
+    <a class="sb-link" data-page="cursos" onclick="nav('cursos')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Mis Cursos
+    </a>
+    <a class="sb-link" data-page="progreso" onclick="nav('progreso')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Mi Progreso
+    </a>
+    <a class="sb-link" data-page="certs" onclick="nav('certs')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>Certificados
+    </a>
+    <div class="sb-label">Cuenta</div>
+    <a class="sb-link" data-page="perfil" onclick="nav('perfil')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Mi Perfil
+    </a>
+  </nav>
+  <div class="sb-footer">
+<a class="sb-link logout" href="index.html" id="btnLogout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cerrar Sesión
+    </a>
+  </div>
+</aside>
+<div class="sb-overlay" id="sbOverlay" onclick="document.getElementById('sidebar').classList.remove('open');this.classList.remove('open')"></div>
+
+<!-- ── MAIN SIN TOPBAR ── -->
+<main class="main">
+
+  <!-- ===== INICIO ===== -->
+  <div class="pg active" id="pg-inicio">
+    <!-- Cabecera integrada: saludo a la izquierda, campana y avatar a la derecha -->
+    <div class="dashboard-header">
+      <div class="header-left">
+        <button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+        <div class="header-welcome">
+<h2 id="welcomeMsg">¡Bienvenida de vuelta, María! 👋</h2> <!---->
+          <p>Continúa donde lo dejaste y sigue avanzando hacia tu certificación.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resto del contenido de inicio (stats, cursos, actividad, racha) se mantiene igual -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="sc-icon red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><div class="sc-val" id="stat-cursos">0</div><div class="sc-label">Cursos inscritos</div><div class="sc-sub muted" id="stat-cursos-sub"></div></div>
+      <div class="stat-card"><div class="sc-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div><div class="sc-val" id="stat-lecciones">0</div><div class="sc-label">Lecciones completadas</div><div class="sc-sub muted" id="stat-lecciones-sub"></div></div>
+      <div class="stat-card"><div class="sc-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="sc-val" id="stat-horas">0h</div><div class="sc-label">Horas de estudio</div><div class="sc-sub muted" id="stat-horas-sub"></div></div>
+      <div class="stat-card"><div class="sc-icon navy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div><div class="sc-val" id="stat-certs">0</div><div class="sc-label">Certificados obtenidos</div><div class="sc-sub muted" id="stat-certs-sub"></div></div>
+    </div>
+
+    <h3 style="font-family:var(--font-disp);font-size:1.3rem;font-weight:600;color:var(--navy);margin-bottom:1rem">Continúa aprendiendo</h3>
+    <div class="courses-grid" id="dashboard-courses-inicio">
+      <!-- Cursos cargados dinámicamente -->
+    </div>
+
+    <div class="two-col">
+      <div class="card" id="activity-card"><div class="card-title">Actividad reciente</div>
+        <div id="activity-list"><p style="color:var(--muted);font-size:.85rem;padding:.5rem 0">Cargando actividad...</p></div>
+      </div>
+      <div class="card" id="streak-card"><div class="card-title">Racha de estudio</div>
+        <div id="streak-content"><p style="color:var(--muted);font-size:.85rem;padding:.5rem 0">Cargando...</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MIS CURSOS ===== -->
+  <div class="pg" id="pg-cursos">
+    <div class="pg-head-row"><button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button><h2>Mis Cursos</h2><a href="index.html#cursos" class="btn-ghost">+ Explorar más cursos</a></div>
+    <div class="courses-grid" id="dashboard-courses-list">
+      <!-- Cursos cargados dinámicamente -->
+    </div>
+  </div>
+
+  <!-- ===== PROGRESO ===== -->
+  <div class="pg" id="pg-progreso">
+    <div class="pg-head"><button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button><div><h2>Mi Progreso</h2><p>Detalle de avance por curso, quizzes y trabajos.</p></div></div>
+    <div class="prog-list" id="prog-list">
+      <p style="color:var(--muted);font-size:.9rem;text-align:center;padding:2rem">Cargando progreso...</p>
+    </div>
+  </div>
+
+  <!-- ===== CERTIFICADOS ===== -->
+  <div class="pg" id="pg-certs">
+    <div class="pg-head"><button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button><div><h2>Mis Certificados</h2><p>Descarga y comparte tus logros académicos.</p></div></div>
+    <div class="certs-grid" id="certs-grid">
+      <p style="color:var(--muted);font-size:.9rem;text-align:center;padding:2rem">Cargando certificados...</p>
+    </div>
+  </div>
+
+  <!-- ===== PERFIL ===== -->
+  <div class="pg" id="pg-perfil">
+    <div class="pg-head"><button class="hb" onclick="document.getElementById('sidebar').classList.toggle('open');document.getElementById('sbOverlay').classList.toggle('open')" aria-label="Abrir menú"><span></span><span></span><span></span></button><h2>Mi Perfil</h2></div>
+    <div class="profile-layout"><div class="profile-card"><div class="p-avatar" id="profAvatar">MP</div><div class="p-name" id="profNombre">María Pérez</div><div class="p-role" id="profRol">Estudiante · Colegiada</div>
+    <div class="p-chips"><span class="chip active">Colegiada activa</span><span class="chip" id="profColegiadoChip">COLITUR-04521</span></div><div class="p-mini-stats"><div class="pms"><div class="pms-val" id="prof-stat-cursos">0</div>
+    <div class="pms-label">Cursos</div></div><div class="pms"><div class="pms-val" id="prof-stat-certs">0</div><div class="pms-label">Certificados</div></div><div class="pms"><div class="pms-val" id="prof-stat-horas">0h</div><div class="pms-label">Estudio</div></div>
+    <div class="pms"><div class="pms-val" id="prof-stat-prom">—</div><div class="pms-label">Prom.</div></div></div></div><div><div class="form-card"><h3>Información personal</h3><div class="form-row-2"><div class="fg"><label>Nombres</label>
+    <input type="text" id="inpNombres" value="María"/></div><div class="fg"><label>Apellidos</label><input type="text" id="inpApellidos" value="Pérez Quispe"/></div></div><div class="fg"><label>Correo electrónico</label>
+    <input type="email" id="inpCorreo" value="maria.perez@email.com"/></div><div class="form-row-2"><div class="fg"><label>Teléfono</label><input type="tel" id="inpTelefono" value="+51 987 654 321"/></div><div class="fg"><label>N° Colegiado</label>
+    <input type="text" value="COLITUR-04521"/></div></div><button class="btn-red" onclick="alert('Cambios guardados ✓')">Guardar cambios</button></div><div class="form-card"><h3>Cambiar contraseña</h3><div class="fg"><label>Contraseña actual</label>
+    <input type="password" placeholder="••••••••"/></div><div class="form-row-2"><div class="fg"><label>Nueva contraseña</label><input type="password" placeholder="Min. 8 caracteres"/></div><div class="fg"><label>Confirmar nueva</label><input type="password" placeholder="Repetir contraseña"/>
+    </div></div><button class="btn-red" onclick="alert('Contraseña actualizada ✓')">Actualizar contraseña</button></div></div></div>
+  </div>
+
+</main>
+</div>
+
+<!-- HIDDEN CERTIFICATE TEMPLATE FOR PDF DOWNLOAD -->
+<div class="cert-print-overlay" id="certPrintOverlay">
+  <section class="cert-a4-page" id="certDashPage">
+    <div class="cert-a4-outer">
+      <div class="cert-a4-inner">
+        <div class="corner-deco top-left"></div>
+        <div class="corner-deco top-right"></div>
+        <div class="corner-deco bottom-left"></div>
+        <div class="corner-deco bottom-right"></div>
+        <header class="dash-cert-header-logo">
+          <div class="dash-cert-logo-box"><img src="logo.png" alt="Logo COLITUR DEC"/></div>
+        </header>
+        <h1 class="dash-cert-inst-title">Colegio de Licenciados en Turismo de Lima</h1>
+        <p class="dash-cert-inst-sub">Dirección de Estudios Continuos</p>
+        <p class="dash-cert-grant">Otorga el presente</p>
+        <h2 class="dash-cert-title">CERTIFICADO</h2>
+        <div>
+          <div class="dash-cert-student" id="dashCertNombre">Nombre del Estudiante</div>
+          <p class="dash-cert-desc">
+            Con documento de identidad <strong id="dashCertDni">D.N.I. N° 00000000</strong>, por haber aprobado satisfactoriamente el curso de capacitación:
+            <span class="dash-cert-course" id="dashCertCurso">Nombre del Curso</span>
+            Desarrollado por la Dirección de Estudios Continuos de COLITUR Lima, con una duración de <span class="dash-cert-hours"><span id="dashCertHoras">40</span> horas lectivas</span>.
+          </p>
+        </div>
+        <p style="font-size:11px;color:#2b2b2b;font-style:italic;margin-bottom:5px">Lima, <span id="dashCertFecha">15 de Julio de 2026</span></p>
+        <footer class="dash-cert-footer">
+          <div class="dash-cert-sigs">
+            <div class="dash-cert-sig">
+              <div class="dash-cert-sig-img"><img src="firma1.png" alt="Firma" id="dashFirma1Img"/></div>
+              <div class="dash-cert-sig-line"></div>
+              <div class="dash-cert-sig-name" id="dashFirma1Name">Lic. Oscar Gamarra Dominguez</div>
+              <div class="dash-cert-sig-role" id="dashFirma1Cargo">Decano<br>COLITUR Lima</div>
+            </div>
+            <div class="dash-cert-sig">
+              <div class="dash-cert-sig-img"><img src="firma2.jpg" alt="Firma" id="dashFirma2Img"/></div>
+              <div class="dash-cert-sig-line"></div>
+              <div class="dash-cert-sig-name" id="dashFirma2Name">Lic. Heber Olavarría Bustios</div>
+              <div class="dash-cert-sig-role" id="dashFirma2Cargo">Vicedecano<br>COLITUR Lima</div>
+            </div>
+            <div class="dash-cert-sig">
+              <div class="dash-cert-sig-img"><img src="firma3.jpg" alt="Firma" id="dashFirma3Img"/></div>
+              <div class="dash-cert-sig-line"></div>
+              <div class="dash-cert-sig-name" id="dashFirma3Name">Lic. Cleyde Flores Flores</div>
+              <div class="dash-cert-sig-role" id="dashFirma3Cargo">Directora Secretaria<br>COLITUR Lima</div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+window.__dashErrors = [];
+window.onerror = function(msg, url, line, col, err) {
+  var el = document.getElementById('dash-debug');
+  if (el) el.innerHTML += '<div style="color:#b91c1c">JS Error: ' + msg + ' (line ' + line + ')</div>';
+};
+window.addEventListener('unhandledrejection', function(e) {
+  var el = document.getElementById('dash-debug');
+  if (el) el.innerHTML += '<div style="color:#b91c1c">Promise rejection: ' + (e.reason && e.reason.message ? e.reason.message : e.reason) + '</div>';
+});
+
+function dashLog(msg) {
+  window.__dashErrors.push(msg);
+  console.log('[DASHBOARD]', msg);
+  var el = document.getElementById('dash-debug');
+  if (el) el.innerHTML += '<div>' + msg + '</div>';
+}
+
+function dashErr(msg) {
+  window.__dashErrors.push('ERROR: ' + msg);
+  console.error('[DASHBOARD]', msg);
+  var el = document.getElementById('dash-debug');
+  if (el) el.innerHTML += '<div style="color:#b91c1c;font-weight:600">ERROR: ' + msg + '</div>';
+}
+</script>
+
+<script>
+var TITLES = { inicio: 'Panel de inicio', cursos: 'Mis Cursos', progreso: 'Mi Progreso', certs: 'Mis Certificados', perfil: 'Mi Perfil' };
+function nav(id) {
+  document.querySelectorAll('.pg').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.sb-link').forEach(function(l) { l.classList.remove('active'); });
+  document.getElementById('pg-' + id).classList.add('active');
+  var link = document.querySelector('[data-page="' + id + '"]');
+  if (link) link.classList.add('active');
+  var pgTitle = document.getElementById('pgTitle');
+  if (pgTitle) pgTitle.textContent = TITLES[id];
+  document.getElementById('sidebar').classList.remove('open');
+  var sbOv = document.getElementById('sbOverlay');
+  if (sbOv) sbOv.classList.remove('open');
+  window.scrollTo(0, 0);
+}
+
+var goCourse = function(i) {
+  var cursos = window._dashboardCursos || [];
+  if (cursos[i]) {
+    window.location.href = 'cursos.html?curso_id=' + cursos[i].id + '&from=dashboard';
+  }
+};
+
+var btnLogout = document.getElementById('btnLogout');
+if(btnLogout) {
+  btnLogout.addEventListener('click', function(e) {
+    e.preventDefault();
+    fetch('/PHP_DEC2/api/auth/logout.php', { method: 'POST' }).finally(function() {
+      window.location.href = 'index.html';
+    });
+  });
+}
+</script>
+
+<script>
+(function() {
+  var debugEl = document.getElementById('dash-debug');
+  if (debugEl) debugEl.innerHTML = '';
+
+  dashLog('Iniciando carga del dashboard...');
+
+  fetch('/PHP_DEC2/api/auth/me.php').then(function(res) {
+    dashLog('me.php status: ' + res.status);
+    return res.json();
+  }).then(function(data) {
+    dashLog('me.php response: success=' + data.success);
+    if (!data.success) {
+      dashErr('Sesion no activa. Redirigiendo a login...');
+      setTimeout(function() { window.location.href = 'index.html'; }, 2000);
+      return;
+    }
+    var u = data.usuario;
+    var ini1 = u.nombres ? u.nombres.trim().charAt(0).toUpperCase() : '';
+    var ini2 = u.apellidos ? u.apellidos.trim().charAt(0).toUpperCase() : '';
+    var iniciales = ini1 + ini2;
+
+    var el;
+    el = document.getElementById('sbAvatar'); if(el) el.textContent = iniciales;
+    el = document.getElementById('sbNombre'); if(el) el.textContent = u.nombres + ' ' + u.apellidos;
+    el = document.getElementById('sbRol'); if(el) el.textContent = (u.rol === 'admin') ? 'Administrador' : 'Estudiante';
+    el = document.getElementById('welcomeMsg'); if(el) el.textContent = '¡Bienvenida de vuelta, ' + u.nombres + '! 👋';
+    el = document.getElementById('profAvatar'); if(el) el.textContent = iniciales;
+    el = document.getElementById('profNombre'); if(el) el.textContent = u.nombres + ' ' + u.apellidos;
+    el = document.getElementById('profRol'); if(el) el.textContent = (u.rol === 'admin') ? 'Administrador · Colegiado' : 'Estudiante · Colegiado';
+    el = document.getElementById('inpNombres'); if(el) el.value = u.nombres;
+    el = document.getElementById('inpApellidos'); if(el) el.value = u.apellidos;
+    el = document.getElementById('inpCorreo'); if(el) el.value = u.email;
+    el = document.getElementById('inpTelefono'); if(el) el.value = u.telefono;
+
+    dashLog('Sesion OK: ' + u.nombres + ' ' + u.apellidos);
+    loadDashboardCourses();
+  }).catch(function(err) {
+    dashErr('Error de red en me.php: ' + err.message);
+    setTimeout(function() { window.location.href = 'index.html'; }, 2000);
+  });
+})();
+</script>
+
+<script>
+var DASHBOARD_API = '/PHP_DEC2/api/cursos';
+var _dashStats = null;
+var _dashProgreso = null;
+
+function safeFetch(url, label, callback) {
+  dashLog('Cargando ' + label + '...');
+  fetch(url).then(function(res) {
+    dashLog(label + ' status: ' + res.status);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  }).then(function(data) {
+    if (data.success === false) {
+      dashErr(label + ': ' + (data.message || 'fallo'));
+      return;
+    }
+    dashLog(label + ': OK');
+    callback(data);
+  }).catch(function(err) {
+    dashErr(label + ': ' + err.message);
+  });
+}
+
+function renderDashboardCourses(cursos, container, showProgress) {
+    if (!container) return;
+    if (!cursos || cursos.length === 0) {
+        container.innerHTML = '<p style="color:var(--muted);font-size:.9rem;text-align:center;padding:2rem">No tienes cursos inscritos aun. <a href="index.html#cursos" style="color:var(--red)">Explorar cursos</a></p>';
+        return;
+    }
+    var progMap = {};
+    if (_dashProgreso) {
+        _dashProgreso.forEach(function(p) { progMap[p.id] = p; });
+    }
+    container.innerHTML = '';
+    cursos.forEach(function(c, idx) {
+        var img = c.imagen || 'curso1.png';
+        var cat = c.categoria_nombre || 'General';
+        var title = c.titulo || '';
+        var instructor = c.docente_nombre || 'Por asignar';
+        var duration = c.duracion || '--';
+        var lessons = c.cantidad_sesiones || '--';
+        var pct = 0;
+        var prog = progMap[c.id];
+        if (prog) pct = prog.porcentaje;
+        var isDone = (showProgress && c.matricula_estado === 'completado') || pct >= 100;
+        var badge = isDone ? 'Completado' : (pct > 0 ? 'En curso' : 'Nuevo');
+        var badgeClass = isDone ? 'cc-badge done' : 'cc-badge';
+        var btnClass = isDone ? 'cc-btn done' : 'cc-btn';
+        var btnText = isDone ? 'Ver certificado' : (pct > 0 ? 'Continuar' : 'Empezar');
+
+        var div = document.createElement('div');
+        div.className = 'cc';
+        div.setAttribute('data-idx', idx);
+        div.onclick = function() { goCourse(idx); };
+        div.innerHTML = '<div class="cc-thumb" style="background-image:url(\'' + img + '\')">' +
+            '<div class="cc-overlay"></div>' +
+            '<div class="' + badgeClass + '">' + badge + '</div>' +
+            (pct > 0 ? '<div class="cc-prog"><div class="cc-prog-fill' + (isDone ? ' done' : '') + '" style="width:' + pct + '%"></div></div>' : '') +
+            '</div>' +
+            '<div class="cc-body">' +
+            '<div class="cc-cat">' + cat + '</div>' +
+            '<div class="cc-title">' + title + '</div>' +
+            '<div class="cc-meta"><span>' + lessons + ' lecciones · ' + duration + ' · ' + instructor + '</span>' +
+            (pct > 0 ? '<span class="cc-pct' + (isDone ? ' done' : '') + '">' + pct + '%</span>' : '') +
+            '</div>' +
+            '<button class="' + btnClass + '">' + btnText + '</button>' +
+            '</div>';
+        container.appendChild(div);
+    });
+}
+
+function renderProgPage(progreso) {
+    var container = document.getElementById('prog-list');
+    if (!container) return;
+    if (!progreso || progreso.length === 0) {
+        container.innerHTML = '<p style="color:var(--muted);font-size:.9rem;text-align:center;padding:2rem">Aun no tienes progreso registrado. <a href="index.html#cursos" style="color:var(--red)">Explorar cursos</a></p>';
+        return;
+    }
+    container.innerHTML = progreso.map(function(p) {
+        var isDone = p.porcentaje >= 100;
+        var pctClass = isDone ? 'prog-pct done' : 'prog-pct';
+        var fillClass = isDone ? 'prog-fill done' : 'prog-fill';
+        return '<div class="prog-card">' +
+            '<div class="prog-top"><span class="prog-name">' + p.titulo + '</span><span class="' + pctClass + '">' + p.porcentaje + '%' + (isDone ? ' OK' : '') + '</span></div>' +
+            '<div class="prog-bg"><div class="' + fillClass + '" style="width:' + p.porcentaje + '%"></div></div>' +
+            '<div class="prog-info">' +
+            '<span>Lecciones: ' + p.videos_done + '/' + p.videos_total + '</span>' +
+            '<span>Quizzes: ' + p.quizzes_done + '/' + p.quizzes_total + '</span>' +
+            '<span>Trabajos: ' + p.works_done + '/' + p.works_total + '</span>' +
+            '</div></div>';
+    }).join('');
+}
+
+var _dashCertsData = [];
+
+function renderCertsPage(progreso) {
+    var container = document.getElementById('certs-grid');
+    if (!container) return;
+
+    var certSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>';
+
+    safeFetch('/PHP_DEC2/api/cursos/mis_certificados.php?action=mis_certificados', 'mis-certificados', function(certData) {
+        var certsEmitidos = certData.data || [];
+        _dashCertsData = certsEmitidos;
+        var certsMap = {};
+        certsEmitidos.forEach(function(c) { certsMap[c.curso_id] = c; });
+
+        var html = '';
+        progreso.forEach(function(p) {
+            var isDone = p.porcentaje >= 100;
+            var certEmitido = certsMap[p.id];
+
+            if (certEmitido) {
+                var fechaEmision = certEmitido.fecha_emision ? new Date(certEmitido.fecha_emision.replace(' ', 'T') + 'Z') : null;
+                var fechaStr = fechaEmision ? fechaEmision.toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+                var nota = certEmitido.nota_final !== null && certEmitido.nota_final !== undefined ? certEmitido.nota_final : '—';
+                html += '<div class="cert-card">' +
+                    '<div class="cert-ico earned">' + certSvg + '</div>' +
+                    '<div><div class="cert-title">' + escHtml2(p.titulo) + '</div>' +
+                    '<div class="cert-meta">' +
+                    'Nota final: <strong>' + nota + '</strong>/20<br>' +
+                    'Emitido: ' + fechaStr +
+                    '</div></div>' +
+                    '<button class="cert-dl" onclick="descargarCertPDF(' + certEmitido.emitido_id + ')">' +
+                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+                    'Descargar PDF</button>' +
+                    '</div>';
+            } else if (isDone && p.certificacion && p.certificacion.toLowerCase().indexOf('s') === 0) {
+                html += '<div class="cert-card pending">' +
+                    '<div class="cert-ico pend">' + certSvg + '</div>' +
+                    '<div><div class="cert-title">' + escHtml2(p.titulo) + '</div>' +
+                    '<div class="cert-meta">Completado al 100%<br>Pendiente de emisión por el administrador</div></div>' +
+                    '<span class="cert-pend-badge">Esperando emisión</span>' +
+                    '</div>';
+            } else if (p.certificacion && p.certificacion.toLowerCase().indexOf('s') === 0) {
+                var missing = [];
+                if (p.quizzes_done < p.quizzes_total) missing.push((p.quizzes_total - p.quizzes_done) + ' quiz');
+                if (p.works_done < p.works_total) missing.push((p.works_total - p.works_done) + ' trabajo');
+                if (p.videos_done < p.videos_total) missing.push((p.videos_total - p.videos_done) + ' clase');
+                var missingText = missing.length ? 'Falta: ' + missing.join(', ') : '';
+                html += '<div class="cert-card pending" style="opacity:.65">' +
+                    '<div class="cert-ico pend">' + certSvg + '</div>' +
+                    '<div><div class="cert-title">' + escHtml2(p.titulo) + '</div>' +
+                    '<div class="cert-meta">En progreso · ' + p.porcentaje + '% completado<br>' + missingText + '</div></div>' +
+                    '<span class="cert-pend-badge">Pendiente de completar</span>' +
+                    '</div>';
+            }
+        });
+
+        container.innerHTML = html || '<p style="color:var(--muted);font-size:.9rem;text-align:center;padding:2rem">No tienes certificados disponibles aun.</p>';
+    });
+}
+
+function descargarCertPDF(emitidoId) {
+    var cert = _dashCertsData.find(function(c) { return c.emitido_id == emitidoId; });
+    if (!cert) { showToast('Error: certificado no encontrado', 'red'); return; }
+
+    var defaults = {
+        firma1: { nombre: 'Lic. Oscar Gamarra Dominguez', cargo: 'Decano<br>COLITUR Lima', img: 'firma1.png' },
+        firma2: { nombre: 'Lic. Heber Olavarría Bustios', cargo: 'Vicedecano<br>COLITUR Lima', img: 'firma2.jpg' },
+        firma3: { nombre: 'Lic. Cleyde Flores Flores', cargo: 'Directora Secretaria<br>COLITUR Lima', img: 'firma3.jpg' }
+    };
+
+    var nombre = (cert.usuario_nombres || '') + ' ' + (cert.usuario_apellidos || '');
+    var dni = cert.usuario_dni || '_________';
+    var horas = cert.horas_duracion || 40;
+
+    var meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    var ahora = new Date();
+    var fechaStr = ahora.getDate() + ' de ' + meses[ahora.getMonth()] + ' de ' + ahora.getFullYear();
+
+    document.getElementById('dashCertNombre').textContent = nombre.trim() || 'Nombre del Estudiante';
+    document.getElementById('dashCertDni').textContent = 'D.N.I. N° ' + dni;
+    document.getElementById('dashCertCurso').textContent = cert.curso_titulo || 'Curso';
+    document.getElementById('dashCertHoras').textContent = horas;
+    document.getElementById('dashCertFecha').textContent = fechaStr;
+
+    var firmas = ['1','2','3'];
+    firmas.forEach(function(n) {
+        var fName = cert['firma' + n + '_nombre'] || defaults['firma' + n].nombre;
+        var fCargo = cert['firma' + n + '_cargo'] || defaults['firma' + n].cargo;
+        var fImg = cert['firma' + n + '_imagen'] || defaults['firma' + n].img;
+        document.getElementById('dashFirma' + n + 'Name').textContent = fName;
+        document.getElementById('dashFirma' + n + 'Cargo').innerHTML = fCargo;
+        document.getElementById('dashFirma' + n + 'Img').src = fImg;
+    });
+
+    showToast('Generando PDF...', 'green');
+    safeFetch('/PHP_DEC2/api/cursos/mis_certificados.php?action=marcar_descarga&id=' + emitidoId, 'descarga-cert', function() {});
+
+    var element = document.getElementById('certDashPage');
+    var opt = {
+        margin: 0,
+        filename: 'Certificado_' + (cert.curso_titulo || 'Curso').replace(/[^a-zA-Z0-9]/g, '_') + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(function() {
+        showToast('Certificado descargado', 'green');
+    }).catch(function(err) {
+        console.error('Error generating PDF:', err);
+        showToast('Error al generar PDF. Intenta de nuevo.', 'red');
+    });
+}
+
+function updateDashboardStats(stats) {
+    if (!stats) return;
+    var setTxt = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
+    setTxt('stat-cursos', stats.cursos_inscritos);
+    setTxt('stat-lecciones', stats.lecciones_completadas);
+    setTxt('stat-lecciones-sub', 'De ' + stats.lecciones_totales + ' totales');
+    setTxt('stat-horas', stats.horas_estudio + 'h');
+    setTxt('stat-certs', stats.certificados);
+    var certsPending = stats.certificados_pendientes || 0;
+    setTxt('stat-certs-sub', certsPending > 0 ? certsPending + ' en progreso' : '');
+    setTxt('prof-stat-cursos', stats.cursos_inscritos);
+    setTxt('prof-stat-certs', stats.certificados);
+    setTxt('prof-stat-horas', stats.horas_estudio + 'h');
+}
+
+function renderActividad(data) {
+    var container = document.getElementById('activity-list');
+    if (!container) return;
+    if (!data || data.length === 0) {
+        container.innerHTML = '<p style="color:var(--muted);font-size:.85rem;padding:.5rem 0">Aun no hay actividad. Completa una leccion para comenzar.</p>';
+        return;
+    }
+    var tipoIco = {
+        video: { color: 'green', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>' },
+        quiz: { color: 'amber', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' },
+        trabajo: { color: 'navy', svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>' }
+    };
+    container.innerHTML = data.map(function(a) {
+        var tipo = tipoIco[a.tipo_contenido] || tipoIco.video;
+        var prefijo = a.tipo_contenido === 'quiz' ? 'Quiz aprobado' : a.tipo_contenido === 'trabajo' ? 'Trabajo entregado' : 'Leccion completada';
+        var calTxt = a.calificacion ? ' - ' + Math.round(a.calificacion) + '/100' : '';
+        var fecha = timeAgo(a.fecha);
+        return '<div class="act-item"><div class="act-ico ' + tipo.color + '">' + tipo.svg + '</div>' +
+            '<div class="act-body"><strong>' + prefijo + ': ' + escHtml2(a.clase_titulo) + calTxt + '</strong>' +
+            '<span>' + escHtml2(a.curso_titulo) + '</span></div>' +
+            '<span class="act-time">' + fecha + '</span></div>';
+    }).join('');
+}
+
+function escHtml2(s) {
+    if (!s) return '';
+    var d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+}
+
+function timeAgo(fechaStr) {
+    if (!fechaStr) return '';
+    try {
+        var fecha = new Date(fechaStr.replace(' ', 'T') + (fechaStr.indexOf('Z') === -1 && fechaStr.indexOf('+') === -1 ? 'Z' : ''));
+        if (isNaN(fecha.getTime())) return '';
+        var ahora = new Date();
+        var diffMs = ahora - fecha;
+        var diffMin = Math.floor(diffMs / 60000);
+        var diffH = Math.floor(diffMin / 600);
+        var diffD = Math.floor(diffH / 24);
+        if (diffMin < 1) return 'Ahora';
+        if (diffMin < 60) return 'Hace ' + diffMin + ' min';
+        if (diffH < 24) return 'Hace ' + diffH + 'h';
+        if (diffD === 1) return 'Ayer';
+        if (diffD < 7) return 'Hace ' + diffD + ' dias';
+        return fecha.toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
+    } catch(e) { return ''; }
+}
+
+function renderStreak(racha, semana) {
+    var container = document.getElementById('streak-content');
+    if (!container) return;
+    var maxRacha = 14;
+    var progPct = Math.min(Math.round(racha / maxRacha * 100), 100);
+    var semanaArr = Array.isArray(semana) ? semana : [];
+    var semanaHtml = semanaArr.map(function(d) {
+        var opacity = d.activo ? '1' : '.25';
+        return '<div class="sd" style="background:rgba(181,30,35,' + opacity + ')">' + (d.dia || '') + '</div>';
+    }).join('');
+    var fireEmoji = racha > 0 ? '🔥 ' : '';
+    var fireStyle = racha > 0 ? '' : 'color:var(--muted);';
+    container.innerHTML =
+        '<div class="streak-num" style="' + fireStyle + '">' + fireEmoji + racha + '</div>' +
+        '<div class="streak-label">' + (racha === 1 ? 'dia seguido estudiando' : 'dias seguidos estudiando') + '</div>' +
+        '<div class="streak-days">' + semanaHtml + '</div>' +
+        '<div style="border-top:1px solid var(--warm-grey);padding-top:.9rem">' +
+        '<div style="font-size:.78rem;color:var(--muted);margin-bottom:.35rem">Proximo logro:</div>' +
+        '<div style="font-size:.85rem;font-weight:600;color:var(--navy)">Racha de ' + maxRacha + ' dias</div>' +
+        '<div style="height:5px;background:var(--warm-grey);border-radius:50px;margin-top:.5rem;overflow:hidden"><div style="width:' + progPct + '%;height:100%;background:var(--red);border-radius:50px"></div></div>' +
+        '<div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">' + racha + ' de ' + maxRacha + ' dias</div></div>';
+}
+
+function loadDashboardActividad() {
+    safeFetch(DASHBOARD_API + '/dashboard_actividad.php', 'actividad', function(data) {
+        if (data.data) {
+            renderActividad(data.data.actividad || []);
+            renderStreak(data.data.racha || 0, data.data.semana || []);
+        }
+    });
+}
+
+function loadDashboardCourses() {
+    dashLog('Cargando cursos del dashboard...');
+    safeFetch(DASHBOARD_API + '/mis-cursos.php', 'mis-cursos', function(data) {
+        var cursos = data.data || [];
+        dashLog('Cursos encontrados: ' + cursos.length);
+        window._dashboardCursos = cursos;
+        renderDashboardCourses(cursos, document.getElementById('dashboard-courses-inicio'), true);
+        renderDashboardCourses(cursos, document.getElementById('dashboard-courses-list'), true);
+        loadDashboardStats();
+        loadDashboardProgreso();
+        loadDashboardActividad();
+    });
+}
+
+function loadDashboardStats() {
+    safeFetch(DASHBOARD_API + '/dashboard_stats.php', 'stats', function(data) {
+        if (data.data) {
+            _dashStats = data.data;
+            updateDashboardStats(data.data);
+        }
+    });
+}
+
+function loadDashboardProgreso() {
+    safeFetch(DASHBOARD_API + '/dashboard_progreso.php', 'progreso', function(data) {
+        if (data.data) {
+            _dashProgreso = data.data;
+            renderProgPage(data.data);
+            renderCertsPage(data.data);
+            var cursos = window._dashboardCursos || [];
+            renderDashboardCourses(cursos, document.getElementById('dashboard-courses-inicio'), true);
+            renderDashboardCourses(cursos, document.getElementById('dashboard-courses-list'), true);
+            var totalProm = 0;
+            var countProm = 0;
+            data.data.forEach(function(p) {
+                if (p.total_lecciones > 0) {
+                    totalProm += p.porcentaje;
+                    countProm++;
+                }
+            });
+            var avgProm = countProm > 0 ? Math.round(totalProm / countProm) : 0;
+            var el = document.getElementById('prof-stat-prom');
+            if (el) el.textContent = avgProm > 0 ? avgProm : '--';
+        }
+    });
+}
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    var dbg = document.getElementById('dash-debug');
+    if (dbg && dbg.querySelectorAll('div[style*="b91c1c"]').length === 0) {
+      dbg.style.transition = 'opacity .5s';
+      dbg.style.opacity = '0';
+      setTimeout(function() { dbg.style.display = 'none'; }, 600);
+    }
+  }, 5000);
+});
+
+function showToast(msg, type) {
+  var existing = document.getElementById('toast');
+  if (existing) existing.remove();
+  var el = document.createElement('div');
+  el.id = 'toast';
+  el.style.cssText = 'position:fixed;bottom:2rem;right:2rem;z-index:9999;padding:.8rem 1.4rem;border-radius:10px;font-family:var(--font-body);font-size:.88rem;font-weight:500;color:#fff;opacity:0;transform:translateY(10px);transition:all .4s ease;max-width:380px;box-shadow:0 6px 20px rgba(0,0,0,.25);display:flex;align-items:center;gap:.6rem';
+  el.style.background = type === 'green' ? '#166534' : type === 'red' ? '#991b1b' : '#b45309';
+  el.innerHTML = '<svg style="width:20px;height:20px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg><span>' + msg + '</span>';
+  document.body.appendChild(el);
+  requestAnimationFrame(function() { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; });
+  setTimeout(function() { el.style.opacity = '0'; el.style.transform = 'translateY(10px)'; setTimeout(function() { el.remove(); }, 500); }, 3500);
+}
+</script>
+</body>
+</html>
